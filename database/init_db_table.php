@@ -1,6 +1,6 @@
 <?php
 $root = $_SERVER['DOCUMENT_ROOT'];
-require_once $root . '/ShopShoe/database/info_connect_db.php';
+require_once $root . '/AVCShop/database/info_connect_db.php';
 
 try {
     // Kết nối đến cơ sở dữ liệu MySQL
@@ -25,10 +25,10 @@ try {
     // Đặt chế độ kiểm soát lỗi
     mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 
-    echo "Tạo database ShopShoe thành công!" . "<br>";
+    echo "Tạo database AVCShop thành công!" . "<br>";
 
-    // Tạo bảng shoes
-    $createTableQuery = "CREATE TABLE IF NOT EXISTS shoes (
+    // Tạo bảng products
+    $createTableQuery = "CREATE TABLE IF NOT EXISTS products (
         id VARCHAR(20) PRIMARY KEY,
         path_image VARCHAR(255) NOT NULL,
         title VARCHAR(255) NOT NULL,
@@ -40,9 +40,9 @@ try {
         description TEXT NOT NULL
     )";
     if ($conn->query($createTableQuery) === TRUE) {
-        echo "Tạo bảng Shoes thành công!" . "<br>";
+        echo "Tạo bảng Products thành công!" . "<br>";
     } else {
-        echo "Tạo bảng Shoes không thành công!" . "<br>";
+        echo "Tạo bảng Products không thành công!" . "<br>";
     }
 
     // Tạo bảng Account
@@ -70,34 +70,34 @@ try {
         echo "Tạo bảng User không thành công!" . "<br>";
     }
 
-    // Tạo bảng User_Shoe_Favorites
-    $createTableQuery = "CREATE TABLE IF NOT EXISTS user_shoe_favorites (
+    // Tạo bảng User_Product_Favorites
+    $createTableQuery = "CREATE TABLE IF NOT EXISTS user_product_favorites (
         username VARCHAR(255) CHARACTER SET utf8 COLLATE utf8_bin,
-        shoe_id VARCHAR(255),
-        PRIMARY KEY (username, shoe_id),
+        product_id VARCHAR(255),
+        PRIMARY KEY (username, product_id),
         FOREIGN KEY (username) REFERENCES user(username) ON DELETE CASCADE ON UPDATE CASCADE,
-        FOREIGN KEY (shoe_id) REFERENCES shoes(id) ON DELETE CASCADE ON UPDATE CASCADE
+        FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE ON UPDATE CASCADE
     )";
     if ($conn->query($createTableQuery) === TRUE) {
-        echo "Tạo bảng User_Shoe_Favorites thành công!" . "<br>";
+        echo "Tạo bảng User_Product_Favorites thành công!" . "<br>";
     } else {
-        echo "Tạo bảng User_Shoe_Favorites không thành công!" . "<br>";
+        echo "Tạo bảng User_Product_Favorites không thành công!" . "<br>";
     }
 
-    // Tạo bảng Shop_Card
-    $createTableQuery = "CREATE TABLE IF NOT EXISTS shop_card (
+    // Tạo bảng Shop_Cart
+    $createTableQuery = "CREATE TABLE IF NOT EXISTS shop_cart (
         username VARCHAR(255) CHARACTER SET utf8 COLLATE utf8_bin,
-        shoe_id VARCHAR(255),
+        product_id VARCHAR(255),
         quantity INT(11) NOT NULL,
         time DATETIME NOT NULL,
-        PRIMARY KEY (username, shoe_id),
+        PRIMARY KEY (username, product_id),
         FOREIGN KEY (username) REFERENCES user(username) ON DELETE CASCADE ON UPDATE CASCADE,
-        FOREIGN KEY (shoe_id) REFERENCES shoes(id) ON DELETE CASCADE ON UPDATE CASCADE
+        FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE ON UPDATE CASCADE
     )";
     if ($conn->query($createTableQuery) === TRUE) {
-        echo "Tạo bảng Shop_Card thành công!" . "<br>";
+        echo "Tạo bảng Shop_Cart thành công!" . "<br>";
     } else {
-        echo "Tạo bảng Shop_Card không thành công!" . "<br>";
+        echo "Tạo bảng Shop_Cart không thành công!" . "<br>";
     }
 
     // Chuẩn bị truy vấn INSERT
@@ -114,8 +114,8 @@ try {
     }
 
     // Chuẩn bị truy vấn INSERT
-    $first_name = "Lê";
-    $last_name = "Tiến Đạt";
+    $first_name = "Nguyễn";
+    $last_name = "Tuấn Vũ";
     $username_ = "admin";
     $stmt = $conn->prepare("INSERT INTO user (first_name, last_name, username) VALUES (?, ?, ?)");
     $stmt->bind_param('sss', $first_name, $last_name, $username_);

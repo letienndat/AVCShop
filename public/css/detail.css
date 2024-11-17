@@ -283,7 +283,7 @@
   color: white;
 }
 
-.button-card, .button-admin {
+.button-cart, .button-admin {
   font-family: "Roboto", sans-serif;
   font-size: 15px;
   line-height: 20px;
@@ -305,7 +305,7 @@
   margin-left: 5px;
 }
 
-.button-card:hover, .button-admin:hover {
+.button-cart:hover, .button-admin:hover {
   cursor: pointer;
   color: #fff;
   background: #000;

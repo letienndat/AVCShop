@@ -158,6 +158,12 @@ body {
   transform: translateY(-5px); /* Dịch phần tử lên 5px khi hover */
 }
 
+.product .top-block a {
+  display: flex;
+  align-items: center;
+  height: 262.66px;
+}
+
 .product .image-product {
   max-width: 100%;
   height: auto;

@@ -9,12 +9,12 @@
 
 <?php
 $root = $_SERVER['DOCUMENT_ROOT'];
-require_once $root . '/ShopShoe/database/info_connect_db.php';
-require_once $root . '/ShopShoe/local/data.php';
+require_once $root . '/AVCShop/database/info_connect_db.php';
+require_once $root . '/AVCShop/local/data.php';
 if ($username_local === null) {
     echo '<script>
     alert("Xin lỗi, bạn chưa đăng nhập!")
-    window.location.href="/ShopShoe/src/sign_in.php"
+    window.location.href="/AVCShop/src/sign_in.php"
     </script>';
 }
 $sort = $_GET['sort'];
@@ -28,8 +28,8 @@ $sort = $_GET['sort'];
     <div class="container-content">
         <div class="container-sub-1">
             <ul class="breadcrumb">
-                <li><a href="/ShopShoe/src/home.php">Trang chủ<i class="fa fa-angle-right"></i></a></li>
-                <li><a href="/ShopShoe/src/list_favorite.php">Danh sách yêu thích</a></li>
+                <li><a href="/AVCShop/src/home.php">Trang chủ<i class="fa fa-angle-right"></i></a></li>
+                <li><a href="/AVCShop/src/list_favorite.php">Danh sách yêu thích</a></li>
             </ul>
         </div>
         <div class="container-sub-2">
@@ -58,11 +58,11 @@ $sort = $_GET['sort'];
                     $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
                     // Chuẩn bị câu truy vấn SQL
-                    $sqlQuery = "SELECT shoes.id, shoes.title, shoes.price, shoes.path_image
-                                FROM shoes
-                                JOIN user_shoe_favorites ON shoes.id = user_shoe_favorites.shoe_id
-                                WHERE user_shoe_favorites.username = :username"
-                        . (isset($sort) ? (' ORDER BY shoes.price ' . ($sort === 'asc' ? 'ASC' : 'DESC')) : '');
+                    $sqlQuery = "SELECT products.id, products.title, products.price, products.path_image
+                                FROM products
+                                JOIN user_product_favorites ON products.id = user_product_favorites.product_id
+                                WHERE user_product_favorites.username = :username"
+                        . (isset($sort) ? (' ORDER BY products.price ' . ($sort === 'asc' ? 'ASC' : 'DESC')) : '');
 
                     // Chuẩn bị statement
                     $stmt = $conn->prepare($sqlQuery);
@@ -72,42 +72,42 @@ $sort = $_GET['sort'];
                     $stmt->execute();
 
                     // Lấy kết quả tìm kiếm
-                    $shoes = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                    $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 ?>
 
-                    <div class=<?php echo (sizeof($shoes) > 0 ? "products" : "no-products") ?>>
+                    <div class=<?php echo (sizeof($products) > 0 ? "products" : "no-products") ?>>
                         <?php
-                        if (sizeof($shoes) === 0) {
+                        if (sizeof($products) === 0) {
                             echo "<span class=" . "notify-products" . ">Không tồn tại sản phẩm nào</span>";
                         }
 
-                        foreach ($shoes as $shoe) {
+                        foreach ($products as $product) {
                         ?>
-                            <div class="product" title="<?php echo $shoe['title'] ?>">
+                            <div class="product" title="<?php echo $product['title'] ?>">
                                 <div class="top-block">
                                     <a href="
                                         <?php
-                                        echo "/ShopShoe/src/detail.php?product_id=" . $shoe['id'];
+                                        echo "/AVCShop/src/detail.php?product_id=" . $product['id'];
                                         ?>
                                     ">
-                                        <img class="image-product" src=<?php echo $shoe['path_image'] ?> alt="<?php echo $shoe['title'] ?>">
+                                        <img class="image-product" src=<?php echo $product['path_image'] ?> alt="<?php echo $product['title'] ?>">
                                     </a>
                                 </div>
                                 <div class="botton-block">
                                     <h4>
                                         <a href="
                                         <?php
-                                        echo "/ShopShoe/src/detail.php?product_id=" . $shoe['id'];
+                                        echo "/AVCShop/src/detail.php?product_id=" . $product['id'];
                                         ?>
                                     ">
-                                            <?php echo mb_strtoupper($shoe['title'], 'UTF-8') ?></a>
+                                            <?php echo mb_strtoupper($product['title'], 'UTF-8') ?></a>
                                     </h4>
                                     <div class="id-product">
-                                        <?php echo "# " . $shoe['id'] ?>
+                                        <?php echo "# " . $product['id'] ?>
                                     </div>
                                     <div class="price-product">
                                         <span class="title-price">Giá: </span>
-                                        <span class="price-real"> <?php echo number_format($shoe['price'], 0, ",", ".") . " đ" ?> </span>
+                                        <span class="price-real"> <?php echo number_format($product['price'], 0, ",", ".") . " đ" ?> </span>
                                     </div>
                                 </div>
                             </div>

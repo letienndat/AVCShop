@@ -1,8 +1,8 @@
 <?php
 
 $root = $_SERVER['DOCUMENT_ROOT'];
-require_once $root . '/ShopShoe/database/info_connect_db.php';
-require_once $root . '/ShopShoe/local/data.php';
+require_once $root . '/AVCShop/database/info_connect_db.php';
+require_once $root . '/AVCShop/local/data.php';
 
 $data = json_decode(file_get_contents('php://input'), true);
 
@@ -12,16 +12,16 @@ try {
     $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
     if ($data['operator'] === 'del') {
-        $stmt = $conn->prepare("DELETE FROM shop_card WHERE username = :username AND shoe_id = :shoe_id");
+        $stmt = $conn->prepare("DELETE FROM shop_cart WHERE username = :username AND product_id = :product_id");
     } else {
         $quantity = ($data['operator'] === '-') ? -1 : 1;
 
-        $stmt = $conn->prepare("UPDATE shop_card SET quantity = quantity + :quantity WHERE username = :username AND shoe_id = :shoe_id");
+        $stmt = $conn->prepare("UPDATE shop_cart SET quantity = quantity + :quantity WHERE username = :username AND product_id = :product_id");
         $stmt->bindParam(':quantity', $quantity);
     }
 
     $stmt->bindParam(':username', $data['username']);
-    $stmt->bindParam(':shoe_id', $data['shoe_id']);
+    $stmt->bindParam(':product_id', $data['product_id']);
     $stmt->execute();
 
     if ($data['operator'] === 'del') {

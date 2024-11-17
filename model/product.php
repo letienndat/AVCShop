@@ -1,5 +1,5 @@
 <?php
-class Shoe {
+class Product {
     public $id;
     public $path_image;
     public $title;

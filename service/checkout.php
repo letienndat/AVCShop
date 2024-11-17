@@ -7,17 +7,17 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $username_ = isset($_POST['username']) ? $_POST['username'] : "";
 
         $root = $_SERVER['DOCUMENT_ROOT'];
-        require_once $root . '/ShopShoe/database/info_connect_db.php';
+        require_once $root . '/AVCShop/database/info_connect_db.php';
 
         try {
             $conn = new PDO("mysql:host=$servername;dbname=$dbname", $username, $password);
             $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
             // Xây dựng câu truy vấn SQL sử dụng Prepared Statement
-            $query = "SELECT SUM(price * quantity) AS total_price FROM shop_card 
-                  INNER JOIN shoes ON shop_card.shoe_id = shoes.id 
-                  WHERE shop_card.shoe_id IN (" . str_repeat("?,", count($selectedProductIDs) - 1) . "?) 
-                  AND shop_card.username = ?";
+            $query = "SELECT SUM(price * quantity) AS total_price FROM shop_cart 
+                  INNER JOIN products ON shop_cart.product_id = products.id 
+                  WHERE shop_cart.product_id IN (" . str_repeat("?,", count($selectedProductIDs) - 1) . "?) 
+                  AND shop_cart.username = ?";
 
             $stmt = $conn->prepare($query);
 
@@ -29,7 +29,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
             $placeholders = implode(',', array_fill(0, count($selectedProductIDs), '?'));
 
-            $stmt = $conn->prepare("DELETE FROM shop_card WHERE shoe_id IN ($placeholders) AND username = ?");
+            $stmt = $conn->prepare("DELETE FROM shop_cart WHERE product_id IN ($placeholders) AND username = ?");
             $selectedProductIDs[] = $username_;
             $stmt->execute($selectedProductIDs);
 

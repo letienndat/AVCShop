@@ -9,11 +9,11 @@
 
 <?php
 $root = $_SERVER['DOCUMENT_ROOT'];
-require_once $root . '/ShopShoe/database/info_connect_db.php';
-require_once $root . '/ShopShoe/local/data.php';
+require_once $root . '/AVCShop/database/info_connect_db.php';
+require_once $root . '/AVCShop/local/data.php';
 
 if ($username_local === null || $role !== 1) {
-    header("Location: " . "/ShopShoe/src/home.php");
+    header("Location: " . "/AVCShop/src/home.php");
     exit;
 }
 
@@ -26,18 +26,17 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
 
         // Đường dẫn thư mục lưu trữ hình ảnh
-        $uploadDir = '/public/images/';
+        $uploadDir = '/public/images/products/';
 
-        $imageFileName = $id . '.' . array_pop(explode(".", $_FILES['image']['name']));
+        $imageFileName = $id . '.jpg';
 
         // Đường dẫn tệp tạm thời của hình ảnh
         $tempImageFile = $_FILES['image']['tmp_name'];
 
-        $destinationPath = '.' . $uploadDir . $imageFileName;
+        $destinationPath = '..' . $uploadDir . $imageFileName;
 
         // Kiểm tra nếu tên file đã tồn tại trong thư mục đích
         if (file_exists($destinationPath)) {
-            echo '<script>alert("Có! ' . $destinationPath . '")</script>';
             // Xóa file cũ trước khi di chuyển file mới
             unlink($destinationPath);
         }
@@ -60,7 +59,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
         // Tiến hành cập nhật thông tin sản phẩm vào CSDL
-        $stmt = $conn->prepare("UPDATE shoes SET title = :title, price = :price, type = :type, brain = :brain, manufacture = :manufacture, material = :material, description = :description WHERE id = :id");
+        $stmt = $conn->prepare("UPDATE products SET title = :title, price = :price, type = :type, brain = :brain, manufacture = :manufacture, material = :material, description = :description WHERE id = :id");
         $stmt->bindParam(':title', $title);
         $stmt->bindParam(':price', $price);
         $stmt->bindParam(':type', $type);
@@ -72,10 +71,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $stmt->execute();
 
         echo '<script>alert("Cập nhật thông tin thành công!")</script>';
-        echo '<script>window.location.href = "/ShopShoe/src/detail.php?product_id=' . $id . '"</script>';
+        echo '<script>window.location.href = "/AVCShop/src/detail.php?product_id=' . $id . '"</script>';
     } catch (PDOException $e) {
         echo '<script>console.log("Lỗi: ' . $e->getMessage() . '")</script>';
-        echo '<script>window.location.href = "/ShopShoe/src/edit_product.php?product_id=' . $id . '"</script>';
+        echo '<script>window.location.href = "/AVCShop/src/edit_product.php?product_id=' . $id . '"</script>';
     }
 
     $conn = null;
@@ -83,14 +82,14 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $product_id = $_GET['product_id'];
 
     if (!isset($product_id)) {
-        header("Location: " . "/ShopShoe/src/home.php");
+        header("Location: " . "/AVCShop/src/home.php");
         exit;
     } else {
         $conn = new PDO("mysql:host=$servername;dbname=$dbname", $username, $password);
         $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
         // Sử dụng truy vấn SQL để kiểm tra ID và lấy thông tin tương ứng
-        $stmt = $conn->prepare("SELECT * FROM shoes WHERE id = :id");
+        $stmt = $conn->prepare("SELECT * FROM products WHERE id = :id");
         $stmt->bindParam(':id', $product_id);
         $stmt->execute();
 
@@ -106,8 +105,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             $material = $result['material'];
             $description = $result['description'];
         } else {
-            // ID không tồn tại trong bảng shoes
-            header("Location: " . "/ShopShoe/src/home.php");
+            // ID không tồn tại trong bảng products
+            header("Location: " . "/AVCShop/src/home.php");
             exit;
         }
     }
@@ -122,9 +121,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     <div class="container-signup">
         <div class="container-sub-1">
             <ul class="breadcrumb">
-                <li><a href="/ShopShoe/src/home.php">Trang chủ<i class="fa fa-angle-right"></i></a></li>
-                <li><a href="/ShopShoe/src/profile.php">Quản trị viên<i class="fa fa-angle-right"></i></a></li>
-                <li><a href="<?php echo '/ShopShoe/src/edit_product.php?product_id=' . $product_id ?>">Chỉnh sửa sản phẩm</a></li>
+                <li><a href="/AVCShop/src/home.php">Trang chủ<i class="fa fa-angle-right"></i></a></li>
+                <li><a href="/AVCShop/src/profile.php">Quản trị viên<i class="fa fa-angle-right"></i></a></li>
+                <li><a href="<?php echo '/AVCShop/src/edit_product.php?product_id=' . $product_id ?>">Chỉnh sửa sản phẩm</a></li>
             </ul>
         </div>
 
@@ -132,7 +131,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             <div class="content">
                 <h1 class="title-add-product">Chỉnh sửa sản phẩm</h1>
                 <p><strong>Lưu ý:</strong> Các mục dấu <strong>màu đỏ</strong> không được bỏ trống & phải điền đầy đủ, chính xác</p>
-                <form id="add-product" action="<?php echo '/ShopShoe/src/edit_product.php?product_id=' . $product_id ?>" method="POST" enctype="multipart/form-data">
+                <form id="add-product" action="<?php echo '/AVCShop/src/edit_product.php?product_id=' . $product_id ?>" method="POST" enctype="multipart/form-data">
                     <fieldset class="info-product">
                         <legend>Thông tin sản phẩm</legend>
                         <div class="form-group">
@@ -164,18 +163,18 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                             <label for="type" class="form-label col-sm-2">Thể loại<sup>*</sup>:</label>
                             <div class="col-sm-10">
                                 <select id="type" class="form-control" name="type">
-                                    <option <?php echo ($type === 'classic' ? 'selected' : '') ?> value="classic">Classic</option>
-                                    <option <?php echo ($type === 'chuck_1970s' ? 'selected' : '') ?> value="chuck_1970s">Chuck 1970S</option>
-                                    <option <?php echo ($type === 'chuck_2' ? 'selected' : '') ?> value="chuck_2">Chuck II</option>
-                                    <option <?php echo ($type === 'seasonal' ? 'selected' : '') ?> value="seasonal">Seasonal</option>
-                                    <option <?php echo ($type === 'sneaker' ? 'selected' : '') ?> value="sneaker">Sneaker</option>
+                                    <option <?php echo ($type === 'ao' ? 'selected' : '') ?> value="ao">Áo</option>
+                                    <option <?php echo ($type === 'quan' ? 'selected' : '') ?> value="quan">Quần</option>
+                                    <option <?php echo ($type === 'dam-vay' ? 'selected' : '') ?> value="dam-vay">Đầm/Váy</option>
+                                    <option <?php echo ($type === 'ao-khoac' ? 'selected' : '') ?> value="ao-khoac">Áo khoác</option>
+                                    <option <?php echo ($type === 'do-lot' ? 'selected' : '') ?> value="do-lot">Đồ lót</option>
                                 </select>
                             </div>
                         </div>
                         <div class="form-group">
                             <label for="brain" class="form-label col-sm-2">Thương hiệu<sup>*</sup>:</label>
                             <div class="col-sm-10">
-                                <input type="text" id="brain" class="form-control" name="brain" value="<?php echo $brain ?>" placeholder="Thương hiệu" value="Converse" autocomplete="one-time-code">
+                                <input type="text" id="brain" class="form-control" name="brain" value="<?php echo $brain ?>" placeholder="Thương hiệu" autocomplete="one-time-code">
                             </div>
                         </div>
                         <div class="form-group">
@@ -252,6 +251,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             imagePreview.style.display = 'none';
         }
     }
+
+    // Ngăn chặn sự kiện cuộn chuột trên input type="number"
+    document.getElementById('price').addEventListener('wheel', function(event) {
+        event.preventDefault(); // Ngừng hành vi cuộn
+    });
 </script>
 
 </html>

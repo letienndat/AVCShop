@@ -9,11 +9,11 @@
 
 <?php
 $root = $_SERVER['DOCUMENT_ROOT'];
-require_once $root . '/ShopShoe/database/info_connect_db.php';
-require_once $root . '/ShopShoe/local/data.php';
+require_once $root . '/AVCShop/database/info_connect_db.php';
+require_once $root . '/AVCShop/local/data.php';
 
 if ($username_local === null || $role !== 1) {
-    header("Location: " . "/ShopShoe/src/home.php");
+    header("Location: " . "/AVCShop/src/home.php");
     exit;
 }
 
@@ -25,17 +25,17 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $id = strtoupper(uniqid());
 
         // Đường dẫn thư mục lưu trữ hình ảnh
-        $uploadDir = '/public/images/';
+        $uploadDir = '/public/images/products/';
 
-        $imageFileName = $id . '.' . array_pop(explode(".", $_FILES['image']['name']));
+        $imageFileName = $id . '.jpg';
 
         // Đường dẫn tệp tạm thời của hình ảnh
         $tempImageFile = $_FILES['image']['tmp_name'];
 
         // Di chuyển hình ảnh vào thư mục lưu trữ
-        if (move_uploaded_file($tempImageFile, '.' . $uploadDir . $imageFileName)) {
+        if (move_uploaded_file($tempImageFile, '..' . $uploadDir . $imageFileName)) {
             // Hình ảnh đã được lưu thành công, tiếp tục lưu thông tin sản phẩm vào cơ sở dữ liệu
-            $imageFileName = '/ShopShoe' . $uploadDir . $imageFileName;
+            $imageFileName = '/AVCShop' . $uploadDir . $imageFileName;
             $title = $_POST['title'];
             $price = $_POST['price'];
             $type = $_POST['type'];
@@ -49,7 +49,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 $conn = new PDO("mysql:host=$servername;dbname=$dbname", $username, $password);
                 $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-                $stmt = $conn->prepare("INSERT INTO shoes (id, path_image, title, price, type, brain, manufacture, material, description) VALUES (:id, :path_image, :title, :price, :type, :brain, :manufacture, :material, :description)");
+                $stmt = $conn->prepare("INSERT INTO products (id, path_image, title, price, type, brain, manufacture, material, description) VALUES (:id, :path_image, :title, :price, :type, :brain, :manufacture, :material, :description)");
                 $stmt->bindParam(':id', $id);
                 $stmt->bindParam(':path_image', $imageFileName);
                 $stmt->bindParam(':title', $title);
@@ -65,13 +65,13 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             } catch (PDOException $e) {
                 echo '<script>console.log("Lỗi: ' . $e->getMessage() . '")</script>';
             } finally {
-                echo '<script>window.location.href = "/ShopShoe/src/add_product.php"</script>';
+                echo '<script>window.location.href = "/AVCShop/src/add_product.php"</script>';
             }
 
             $conn = null;
         } else {
             echo '<script>alert("Có lỗi khi lưu hình ảnh!")</script>';
-            echo '<script>window.location.href = "/ShopShoe/src/add_product.php"</script>';
+            echo '<script>window.location.href = "/AVCShop/src/add_product.php"</script>';
         }
     }
 }
@@ -85,9 +85,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     <div class="container-signup">
         <div class="container-sub-1">
             <ul class="breadcrumb">
-                <li><a href="/ShopShoe/src/home.php">Trang chủ<i class="fa fa-angle-right"></i></a></li>
-                <li><a href="/ShopShoe/src/profile.php">Quản trị viên<i class="fa fa-angle-right"></i></a></li>
-                <li><a href="/ShopShoe/src/add_product.php">Thêm sản phẩm</a></li>
+                <li><a href="/AVCShop/src/home.php">Trang chủ<i class="fa fa-angle-right"></i></a></li>
+                <li><a href="/AVCShop/src/profile.php">Quản trị viên<i class="fa fa-angle-right"></i></a></li>
+                <li><a href="/AVCShop/src/add_product.php">Thêm sản phẩm</a></li>
             </ul>
         </div>
 
@@ -95,7 +95,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             <div class="content">
                 <h1 class="title-add-product">Thêm sản phẩm</h1>
                 <p><strong>Lưu ý:</strong> Các mục dấu <strong>màu đỏ</strong> không được bỏ trống & phải điền đầy đủ, chính xác</p>
-                <form id="add-product" action="/ShopShoe/src/add_product.php" method="POST" enctype="multipart/form-data">
+                <form id="add-product" action="/AVCShop/src/add_product.php" method="POST" enctype="multipart/form-data">
                     <fieldset class="info-product">
                         <legend>Thông tin sản phẩm</legend>
                         <div class="form-group-image">
@@ -121,18 +121,18 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                             <label for="type" class="form-label col-sm-2">Thể loại<sup>*</sup>:</label>
                             <div class="col-sm-10">
                                 <select id="type" class="form-control" name="type">
-                                    <option value="classic">Classic</option>
-                                    <option value="chuck_1970s">Chuck 1970S</option>
-                                    <option value="chuck_2">Chuck II</option>
-                                    <option value="seasonal">Seasonal</option>
-                                    <option value="sneaker">Sneaker</option>
+                                    <option value="ao">Áo</option>
+                                    <option value="quan">Quần</option>
+                                    <option value="dam-vay">Đầm/Váy</option>
+                                    <option value="ao-khoac">Áo khoác</option>
+                                    <option value="do-lot">Đồ lót</option>
                                 </select>
                             </div>
                         </div>
                         <div class="form-group">
                             <label for="brain" class="form-label col-sm-2">Thương hiệu<sup>*</sup>:</label>
                             <div class="col-sm-10">
-                                <input type="text" id="brain" class="form-control" name="brain" placeholder="Thương hiệu" value="Converse" autocomplete="one-time-code">
+                                <input type="text" id="brain" class="form-control" name="brain" placeholder="Thương hiệu" value="Thời trang Tuấn Vũ" autocomplete="one-time-code">
                             </div>
                         </div>
                         <div class="form-group">
@@ -163,7 +163,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     </div>
 
     <?php
-    include './inc/footer.php';
+    include '../inc/footer.php';
     ?>
 </body>
 
@@ -209,6 +209,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             imagePreview.style.display = 'none';
         }
     }
+
+    // Ngăn chặn sự kiện cuộn chuột trên input type="number"
+    document.getElementById('price').addEventListener('wheel', function(event) {
+        event.preventDefault(); // Ngừng hành vi cuộn
+    });
 </script>
 
 </html>

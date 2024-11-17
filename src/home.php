@@ -6,36 +6,36 @@
     <link rel="stylesheet" href="../public/css/home.css">
     <title>
         <?php
-        $type_converse = $_GET['type'];
+        $type = $_GET['type'];
         $search = $_GET['search'];
         $sort = $_GET['sort'];
-        echo getTitlePage($type_converse, $search);
+        echo getTitlePage($type, $search);
         ?>
     </title>
 </head>
 
 <?php
 $root = $_SERVER['DOCUMENT_ROOT'];
-require_once $root . '/ShopShoe/database/info_connect_db.php';
-require_once $root . '/ShopShoe/local/data.php';
+require_once $root . '/AVCShop/database/info_connect_db.php';
+require_once $root . '/AVCShop/local/data.php';
 ?>
 
 <?php
-function getTitlePage($type_converse, $search)
+function getTitlePage($type, $search)
 {
-    switch ($type_converse) {
-        case 'classic':
-            return "Classic";
-        case 'chuck_1970s':
-            return "Chuck 1970S";
-        case 'chuck_2':
-            return "Chuck II";
-        case 'seasonal':
-            return "Seasonal";
-        case 'sneaker':
-            return "Sneaker";
+    switch ($type) {
+        case 'ao':
+            return "Áo";
+        case 'quan':
+            return "Quần";
+        case 'dam-vay':
+            return "Đầm/Váy";
+        case 'ao-khoac':
+            return "Áo khoác";
+        case 'do-lot':
+            return "Đồ lót";
         default:
-            return isset($search) ? (trim($search) === "" ? "Search" : ("Search - " . $search)) : "Converse";
+            return isset($search) ? (trim($search) === "" ? "Search" : ("Search - " . $search)) : "Thời trang nam nữ";
     }
 }
 ?>
@@ -48,24 +48,24 @@ function getTitlePage($type_converse, $search)
     <div class="container-content">
         <div class="container-sub-1">
             <ul class="breadcrumb">
-                <li><a href="/ShopShoe/src/home.php">Trang chủ<i class="fa fa-angle-right"></i></a></li>
+                <li><a href="/AVCShop/src/home.php">Trang chủ<i class="fa fa-angle-right"></i></a></li>
                 <?php
-                if (isset($type_converse)) {
+                if (isset($type)) {
                 ?>
-                    <li><a href=<?php echo "/ShopShoe/src/home.php?type=" . $type_converse ?>>
+                    <li><a href=<?php echo "/AVCShop/src/home.php?type=" . $type ?>>
                             <?php
-                            echo getTitlePage($type_converse, $search);
+                            echo getTitlePage($type, $search);
                             ?>
                         </a>
                     </li>
                 <?php
                 } else if (isset($search)) {
                 ?>
-                    <li><a href=<?php echo "/ShopShoe/src/home.php?search=" . $search ?>>Search</a></li>
+                    <li><a href=<?php echo "/AVCShop/src/home.php?search=" . $search ?>>Search</a></li>
                 <?php
                 } else {
                 ?>
-                    <li><a href="/ShopShoe/src/home.php">All Converse</a></li>
+                    <li><a href="/AVCShop/src/home.php">Tất cả</a></li>
                 <?php
                 }
                 ?>
@@ -76,7 +76,7 @@ function getTitlePage($type_converse, $search)
             if (!isset($search)) {
             ?>
                 <div class="div-banner">
-                    <img class="banner" src=<?php echo "/ShopShoe/public/images/" . (isset($type_converse) ? $type_converse . ".jpg" : "converse.jpg") ?> alt="All Converse">
+                    <img class="banner" src=<?php echo "/AVCShop/public/images/banners/" . (isset($type) ? $type . ".jpg" : "home.jpg") ?> alt="Banner">
                 </div>
             <?php
             } else {
@@ -106,18 +106,18 @@ function getTitlePage($type_converse, $search)
                     $conn = new PDO("mysql:host=$servername;dbname=$dbname", $username, $password);
                     $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-                    // Truy vấn lấy danh sách giày từ bảng "shoes"
+                    // Truy vấn lấy danh sách giày từ bảng "products"
                     if (!isset($search)) {
                         if (isset($sort)) {
-                            $stmt = $conn->query("SELECT * FROM shoes" . (isset($type_converse) ? (" WHERE type = '" . $type_converse . "'") : "") . " ORDER BY price " . $sort);
+                            $stmt = $conn->query("SELECT * FROM products" . (isset($type) ? (" WHERE type = '" . $type . "'") : "") . " ORDER BY price " . $sort);
                         } else {
-                            $stmt = $conn->query("SELECT * FROM shoes" . (isset($type_converse) ? (" WHERE type = '" . $type_converse . "'") : ""));
+                            $stmt = $conn->query("SELECT * FROM products" . (isset($type) ? (" WHERE type = '" . $type . "'") : ""));
                         }
                     } else if (isset($search)) {
                         if (isset($sort)) {
-                            $stmt = $conn->prepare("SELECT * FROM shoes WHERE title LIKE :keyword OR id LIKE :id ORDER BY price " . $sort);
+                            $stmt = $conn->prepare("SELECT * FROM products WHERE title LIKE :keyword OR id LIKE :id ORDER BY price " . $sort);
                         } else {
-                            $stmt = $conn->prepare("SELECT * FROM shoes WHERE title LIKE :keyword OR id LIKE :id");
+                            $stmt = $conn->prepare("SELECT * FROM products WHERE title LIKE :keyword OR id LIKE :id");
                         }
                         $search = trim($search);
                         $stmt->bindValue(':keyword', "%$search%", PDO::PARAM_STR);
@@ -126,31 +126,31 @@ function getTitlePage($type_converse, $search)
                     }
 
                     // Lấy kết quả tìm kiếm
-                    $shoes = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                    $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 ?>
 
-                    <div class=<?php echo (sizeof($shoes) > 0 ? "products" : "no-products") ?>>
+                    <div class=<?php echo (sizeof($products) > 0 ? "products" : "no-products") ?>>
                         <?php
-                        if (sizeof($shoes) === 0) {
+                        if (sizeof($products) === 0) {
                             echo "<span class=" . "notify-products" . ">Không tồn tại sản phẩm nào</span>";
                         }
 
-                        foreach ($shoes as $shoe) {
+                        foreach ($products as $product) {
                         ?>
-                            <div class="product" title="<?php echo $shoe['title'] ?>">
+                            <div class="product" title="<?php echo $product['title'] ?>">
                                 <div class="top-block">
                                     <a href="
                                         <?php
                                         if (isset($search)) {
-                                            echo "/ShopShoe/src/detail.php?product_id=" . $shoe['id'];
-                                        } else if (isset($type_converse)) {
-                                            echo "/ShopShoe/src/detail.php?product_id=" . $shoe['id'] . '&type=' . $type_converse;
+                                            echo "/AVCShop/src/detail.php?product_id=" . $product['id'];
+                                        } else if (isset($type)) {
+                                            echo "/AVCShop/src/detail.php?product_id=" . $product['id'] . '&type=' . $type;
                                         } else {
-                                            echo "/ShopShoe/src/detail.php?product_id=" . $shoe['id'] . '&type=converse';
+                                            echo "/AVCShop/src/detail.php?product_id=" . $product['id'] . '&type=all';
                                         }
                                         ?>
                                     ">
-                                        <img class="image-product" src=<?php echo $shoe['path_image'] ?> alt="<?php echo $shoe['title'] ?>">
+                                        <img class="image-product" src=<?php echo $product['path_image'] ?> alt="<?php echo $product['title'] ?>">
                                     </a>
                                 </div>
                                 <div class="botton-block">
@@ -158,22 +158,22 @@ function getTitlePage($type_converse, $search)
                                         <a href="
                                         <?php
                                         if (isset($search)) {
-                                            echo "/ShopShoe/src/detail.php?product_id=" . $shoe['id'];
-                                        } else if (isset($type_converse)) {
-                                            echo "/ShopShoe/src/detail.php?product_id=" . $shoe['id'] . '&type=' . $type_converse;
+                                            echo "/AVCShop/src/detail.php?product_id=" . $product['id'];
+                                        } else if (isset($type)) {
+                                            echo "/AVCShop/src/detail.php?product_id=" . $product['id'] . '&type=' . $type;
                                         } else {
-                                            echo "/ShopShoe/src/detail.php?product_id=" . $shoe['id'] . '&type=converse';
+                                            echo "/AVCShop/src/detail.php?product_id=" . $product['id'] . '&type=all';
                                         }
                                         ?>
                                     ">
-                                            <?php echo mb_strtoupper($shoe['title'], 'UTF-8') ?></a>
+                                            <?php echo mb_strtoupper($product['title'], 'UTF-8') ?></a>
                                     </h4>
                                     <div class="id-product">
-                                        <?php echo "# " . $shoe['id'] ?>
+                                        <?php echo "# " . $product['id'] ?>
                                     </div>
                                     <div class="price-product">
                                         <span class="title-price">Giá: </span>
-                                        <span class="price-real"> <?php echo number_format($shoe['price'], 0, ",", ".") . " đ" ?> </span>
+                                        <span class="price-real"> <?php echo number_format($product['price'], 0, ",", ".") . " đ" ?> </span>
                                     </div>
                                 </div>
                             </div>
@@ -219,16 +219,26 @@ function getTitlePage($type_converse, $search)
     }
 
     const click_up_to_top = async () => {
-        var y = window.pageYOffset;
+        const start = window.scrollY; // Vị trí hiện tại
+        const maxDuration = 500; // Giới hạn thời gian tối đa (0.5 giây)
+        const distance = start;
+        const duration = Math.min(distance / 2, maxDuration); // Thời gian tỷ lệ với khoảng cách
 
-        for (let i = y; i >= 0; i -= 30) {
-            if (i < 90) {
-                window.scrollTo(window.pageXOffset, 0);
-                break
+        const startTime = performance.now();
+
+        const animateScroll = (currentTime) => {
+            const elapsedTime = currentTime - startTime;
+            const progress = Math.min(elapsedTime / duration, 1);
+            const scrollAmount = start * (1 - progress);
+
+            window.scrollTo(0, scrollAmount);
+
+            if (progress < 1) {
+                requestAnimationFrame(animateScroll);
             }
-            window.scrollTo(window.pageXOffset, i);
-            await new Promise(resolve => setTimeout(resolve, 5));
-        }
+        };
+
+        requestAnimationFrame(animateScroll);
     };
 
     window.addEventListener('scroll', () => {

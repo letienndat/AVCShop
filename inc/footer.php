@@ -3,12 +3,9 @@
     <div class="footer-center">
         <div class="footer-center-sub">
             <div class="footer-content">
-                <strong>NHÓM 17</strong>
+                <strong>AVC Shop</strong>
                 <ul class="ul-member">
-                    <li class="li-name-member">Lê Tiến Đạt</li>
-                    <li class="li-name-member">Đặng Xuân Hiếu</li>
-                    <li class="li-name-member">Đinh Đại Việt</li>
-                    <li class="li-name-member">Nguyễn Xuân Sơn</li>
+                    <li class="li-name-member">Nguyễn Tuấn Vũ</li>
                 </ul>
             </div>
         </div>
@@ -34,6 +31,6 @@
         </div>
     </div>
     <div class="footer-botton">
-        <span>©DRAKE VN CLONE - Thiết kế bởi Nhóm 17</span>
+        <span>©AVCShop - Nguyễn Tuấn Vũ</span>
     </div>
 </footer>

@@ -1,4 +1,4 @@
-# WEBSITE BÁN GIÀY (NHÓM 17)
+# WEBSITE BÁN QUẦN ÁO (AVC SHOP)
 ## Hướng dẫn sử dụng
 ### Yêu cầu:
 -   MySQL
@@ -10,15 +10,15 @@
  -  Truy cập lần lượt vào các đường dẫn sau bằng trình duyệt của bạn:
     -   Khởi tạo database, các bảng và thông tin admin
     ```
-        http://localhost/ShopShoe/database/init_db_table.php
+        http://localhost/AVCShop/database/init_db_table.php
     ```
     -   Khởi tạo dữ liệu sản phẩm cho website
     ```
-        http://localhost/ShopShoe/database/init_data.php
+        http://localhost/AVCShop/database/init_data.php
     ```
     -   Đường dẫn tới trang chủ của website
     ```
-        http://localhost/ShopShoe/src/home.php
+        http://localhost/AVCShop/src/home.php
     ```
 -   Truy cập với tài khoản admin mặc định được cấp hoặc tạo tài khoản cá nhân để sử dụng (Lưu ý: Tài khoản cá nhân chỉ là tài khoản bình thường nên không có các chức năng của quản trị viên, chỉ có tài khoản admin với có đặc quyền đó)
 ```

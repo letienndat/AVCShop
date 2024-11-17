@@ -3,18 +3,18 @@
 
 <head>
     <?php include '../inc/head.php'; ?>
-    <link rel="stylesheet" href="../public/css/shop_card.css">
+    <link rel="stylesheet" href="../public/css/shop_cart.css">
     <title>Giỏ Hàng</title>
 </head>
 
 <?php
 $root = $_SERVER['DOCUMENT_ROOT'];
-require_once $root . '/ShopShoe/database/info_connect_db.php';
-require_once $root . '/ShopShoe/local/data.php';
+require_once $root . '/AVCShop/database/info_connect_db.php';
+require_once $root . '/AVCShop/local/data.php';
 if ($username_local === null) {
     echo '<script>
     alert("Xin lỗi, bạn chưa đăng nhập!")
-    window.location.href="/ShopShoe/src/sign_in.php"
+    window.location.href="/AVCShop/src/sign_in.php"
     </script>';
 }
 ?>
@@ -27,8 +27,8 @@ if ($username_local === null) {
     <div class="container-content">
         <div class="container-sub-1">
             <ul class="breadcrumb">
-                <li><a href="/ShopShoe/src/home.php">Trang chủ<i class="fa fa-angle-right"></i></a></li>
-                <li><a href="/ShopShoe/src/shop_card.php">Giỏ hàng</a></li>
+                <li><a href="/AVCShop/src/home.php">Trang chủ<i class="fa fa-angle-right"></i></a></li>
+                <li><a href="/AVCShop/src/shop_cart.php">Giỏ hàng</a></li>
             </ul>
         </div>
         <div class="container-sub-2">
@@ -38,11 +38,11 @@ if ($username_local === null) {
             $conn = new PDO("mysql:host=$servername;dbname=$dbname", $username, $password);
             $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-            $stmt = $conn->prepare("SELECT shoes.*, shop_card.quantity 
-                       FROM shoes 
-                       INNER JOIN shop_card ON shoes.id = shop_card.shoe_id 
-                       WHERE shop_card.username = :username 
-                       ORDER BY shop_card.time DESC");
+            $stmt = $conn->prepare("SELECT products.*, shop_cart.quantity 
+                       FROM products 
+                       INNER JOIN shop_cart ON products.id = shop_cart.product_id 
+                       WHERE shop_cart.username = :username 
+                       ORDER BY shop_cart.time DESC");
             $stmt->bindParam(':username', $username_local);
             $stmt->execute();
 
@@ -86,14 +86,14 @@ if ($username_local === null) {
                                     </td>
                                     <td class="text-center col-image">
                                         <?php
-                                        echo '<a href="/ShopShoe/src/detail.php?product_id=' . $row['id'] . '">' .
+                                        echo '<a href="/AVCShop/src/detail.php?product_id=' . $row['id'] . '">' .
                                             '<img class="img-thumbnail" src="' . $row['path_image'] . '" alt="' . $row['title'] . '">' .
                                             '</a>';
                                         ?>
                                     </td>
                                     <td class="td-title">
                                         <?php
-                                        echo '<a href="/ShopShoe/src/detail.php?product_id=' . $row['id'] . '">' . $row['title'] . '</a>';
+                                        echo '<a href="/AVCShop/src/detail.php?product_id=' . $row['id'] . '">' . $row['title'] . '</a>';
                                         ?>
                                     </td>
                                     <td class="text-center td-quantity">
@@ -138,7 +138,7 @@ if ($username_local === null) {
                     </div>
                     <div class="buttons">
                         <div class="pull-left">
-                            <a href="/ShopShoe/src/home.php" class="btn">Tiếp tục mua hàng</a>
+                            <a href="/AVCShop/src/home.php" class="btn">Tiếp tục mua hàng</a>
                         </div>
                         <div class="pull-right">
                             <?php echo '<button type="submit" class="btn">Thanh toán</button>' ?>
@@ -158,26 +158,6 @@ if ($username_local === null) {
 </body>
 
 <script>
-    const select_option_sort = () => {
-        const element_sort = document.querySelector('#sort')
-        const params = new URLSearchParams(window.location.search)
-
-        if (params) {
-            if (params.has('sort')) {
-                if (element_sort.value === 'default') {
-                    params.delete('sort')
-                } else {
-                    params.set('sort', element_sort.value)
-                }
-            } else {
-                if (element_sort.value !== 'default') {
-                    params.append('sort', element_sort.value)
-                }
-            }
-            window.location.href = window.location.href.split('?')[0] + (params.toString() === '' ? '' : '?') + params.toString()
-        }
-    }
-
     var sum_all = 0
 
     const click_checkbox = (event, id, price) => {
@@ -218,10 +198,10 @@ if ($username_local === null) {
 
         option['body'] = JSON.stringify({
             username: username_local,
-            shoe_id: id,
+            product_id: id,
             operator
         })
-        fetch('/ShopShoe/service/update_quantity_shop_card.php', option)
+        fetch('/AVCShop/service/update_quantity_shop_cart.php', option)
             .then(response => response.json())
             .then(data => {
                 var check = document.querySelector(`#input-checkbox-${id}`).checked
@@ -237,7 +217,7 @@ if ($username_local === null) {
                     }
                 } else {
                     if (document.querySelectorAll('.row-number').length === 1) {
-                        window.location.href = '/ShopShoe/src/shop_card.php'
+                        window.location.href = '/AVCShop/src/shop_cart.php'
                     } else {
                         if (check) {
                             sum_all -= price
@@ -260,7 +240,7 @@ if ($username_local === null) {
         const formData = new FormData(event.target);
         formData.append('username', event.target.dataset.username)
 
-        fetch("/ShopShoe/service/checkout.php", {
+        fetch("/AVCShop/service/checkout.php", {
                 method: "POST",
                 body: formData
             })
@@ -268,7 +248,7 @@ if ($username_local === null) {
             .then(data => {
                 alert(data.message)
                 if (data.status === 2) {
-                    window.location.href = '/ShopShoe/src/shop_card.php'
+                    window.location.href = '/AVCShop/src/shop_cart.php'
                 }
             })
             .catch(error => console.error(error));

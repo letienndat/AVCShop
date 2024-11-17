@@ -1,11 +1,11 @@
 <?php
 session_start();
 $root = $_SERVER['DOCUMENT_ROOT'];
-require_once $root . '/ShopShoe/database/info_connect_db.php';
-require_once $root . '/ShopShoe/local/data.php';
+require_once $root . '/AVCShop/database/info_connect_db.php';
+require_once $root . '/AVCShop/local/data.php';
 
 if ($username_local === null || $role !== 1) {
-    header("Location: " . "/ShopShoe/src/home.php");
+    header("Location: " . "/AVCShop/src/home.php");
     exit;
 }
 
@@ -19,15 +19,15 @@ if ($_SERVER["REQUEST_METHOD"] === "GET") {
         $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
         // Xóa sản phẩm dựa trên id
-        $stmt = $conn->prepare("SELECT path_image FROM shoes WHERE id = :id");
+        $stmt = $conn->prepare("SELECT path_image FROM products WHERE id = :id");
         $stmt->bindParam(':id', $id);
         $stmt->execute();
 
         $path_image = ($stmt->fetch())['path_image'];
-        $path_image = str_replace("/ShopShoe", "..", $path_image);
+        $path_image = str_replace("/AVCShop", "..", $path_image);
 
         // Xóa sản phẩm dựa trên id
-        $stmt = $conn->prepare("DELETE FROM shoes WHERE id = :id");
+        $stmt = $conn->prepare("DELETE FROM products WHERE id = :id");
         $stmt->bindParam(':id', $id);
         $stmt->execute();
 
@@ -47,7 +47,7 @@ if ($_SERVER["REQUEST_METHOD"] === "GET") {
             // Không tìm thấy sản phẩm với id tương ứng hoặc đã có lỗi xảy ra trong quá trình xóa
             echo '<script>alert("Thất bại! ID không trùng với bất kỳ sản phẩm nào")</script>';
         }
-        echo '<script>window.location.href = "/ShopShoe/src/home.php"</script>';
+        echo '<script>window.location.href = "/AVCShop/src/home.php"</script>';
     } catch (PDOException $e) {
         echo '<script>console.log("Lỗi: ' . $e->getMessage() . '")</script>';
     }

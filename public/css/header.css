@@ -157,6 +157,10 @@ header {
   align-items: center;
 }
 
+.logo {
+  max-height: 50px;
+}
+
 .a-heart {
   padding-right: 20px;
 }
