@@ -212,7 +212,7 @@
 
     const add_shop_cart = (status, username_, product_id) => {
         if (status) {
-            const quantity = document.querySelector('#quantity-product').value
+            var quantity = document.querySelector('#quantity-product').value
 
             if (Number.isInteger(parseInt(quantity)) && parseInt(quantity) > 0) {
                 var option = {
@@ -223,7 +223,7 @@
                     body: JSON.stringify({
                         username: username_,
                         product_id,
-                        quantity: document.querySelector('#quantity-product').value,
+                        quantity: parseInt(quantity),
                         time: new Date()
                     }),
                 }
@@ -275,5 +275,7 @@
         window.location.href = `/AVCShop/service/delete_product.php?product_id=${id}`
     }
 </script>
+
+<script src="/AVCShop/public/js/padding-top-body.js"></script>
 
 </html>

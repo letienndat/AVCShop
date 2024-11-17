@@ -263,4 +263,6 @@ if ($username_local === null) {
     }
 </script>
 
+<script src="/AVCShop/public/js/padding-top-body.js"></script>
+
 </html>

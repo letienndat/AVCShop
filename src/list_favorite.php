@@ -175,4 +175,6 @@ $sort = $_GET['sort'];
     })
 </script>
 
+<script src="/AVCShop/public/js/padding-top-body.js"></script>
+
 </html>

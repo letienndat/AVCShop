@@ -25,18 +25,32 @@ if (isset($username_) && isset($password_)) {
         $conn = new PDO("mysql:host=$servername;dbname=$dbname", $username, $password);
         $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-        // Thực hiện truy vấn SQL để kiểm tra tài khoản và mật khẩu
-        $stmt = $conn->prepare("SELECT * FROM account WHERE username = :username AND password = :password");
+        // Thực hiện truy vấn SQL để lấy mật khẩu đã mã hóa từ cơ sở dữ liệu
+        $stmt = $conn->prepare("SELECT password FROM account WHERE username = :username");
         $stmt->bindParam(":username", $username_);
-        $stmt->bindParam(":password", $password_);
         $stmt->execute();
 
+        // Kiểm tra xem có tài khoản tương ứng không
         if ($stmt->rowCount() > 0) {
-            $_SESSION['username'] = $username_;
-            echo '<script>window.location.href="/AVCShop/src/home.php"</script>';
+            // Lấy mật khẩu đã mã hóa từ cơ sở dữ liệu
+            $storedPasswordHash = $stmt->fetchColumn();
+
+            // Kiểm tra mật khẩu người dùng nhập vào với mật khẩu đã mã hóa
+            if (password_verify($password_, $storedPasswordHash)) {
+                // Mật khẩu đúng, đăng nhập thành công
+                $_SESSION['username'] = $username_;
+                echo '<script>window.location.href="/AVCShop/src/home.php"</script>';
+            } else {
+                // Mật khẩu sai
+                echo '<script>
+                        alert("Sai thông tin đăng nhập, hãy thử lại!");
+                        window.location.href="/AVCShop/src/sign_in.php";
+                    </script>';
+            }
         } else {
+            // Không tìm thấy tài khoản
             echo '<script>
-                    alert("Sai thông tin đăng nhập, hãy thử lại!");
+                    alert("Tài khoản không tồn tại!");
                     window.location.href="/AVCShop/src/sign_in.php";
                 </script>';
         }
@@ -110,5 +124,7 @@ if (isset($username_) && isset($password_)) {
         }
     }
 </script>
+
+<script src="/AVCShop/public/js/padding-top-body.js"></script>
 
 </html>

@@ -32,7 +32,10 @@ if (isset($first_name) && isset($last_name) && isset($username_) && isset($passw
 
         // Thực hiện INSERT Account
         $stmt->bindParam(':username', $username_);
-        $stmt->bindParam(':password', $password_);
+
+        // Mã hóa mật khẩu với hàm password_hash
+        $hashedPassword = password_hash($password_, PASSWORD_DEFAULT);
+        $stmt->bindParam(':password', $hashedPassword);
         $stmt->execute();
 
         // Chuẩn bị truy vấn INSERT User
@@ -146,5 +149,7 @@ if (isset($first_name) && isset($last_name) && isset($username_) && isset($passw
         }
     }
 </script>
+
+<script src="/AVCShop/public/js/padding-top-body.js"></script>
 
 </html>

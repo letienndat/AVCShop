@@ -258,4 +258,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     });
 </script>
 
+<script src="/AVCShop/public/js/padding-top-body.js"></script>
+
 </html>

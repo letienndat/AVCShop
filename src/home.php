@@ -12,6 +12,7 @@
         echo getTitlePage($type, $search);
         ?>
     </title>
+
 </head>
 
 <?php
@@ -21,6 +22,12 @@ require_once $root . '/AVCShop/local/data.php';
 ?>
 
 <?php
+
+// Bật hiển thị lỗi để debug
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
 function getTitlePage($type, $search)
 {
     switch ($type) {
@@ -106,18 +113,23 @@ function getTitlePage($type, $search)
                     $conn = new PDO("mysql:host=$servername;dbname=$dbname", $username, $password);
                     $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
+                    // Tham số phân trang
+                    $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;  // Mặc định là trang 1
+                    $perPage = 30;  // Số sản phẩm mỗi trang
+                    $offset = ($page - 1) * $perPage;
+
                     // Truy vấn lấy danh sách giày từ bảng "products"
                     if (!isset($search)) {
                         if (isset($sort)) {
-                            $stmt = $conn->query("SELECT * FROM products" . (isset($type) ? (" WHERE type = '" . $type . "'") : "") . " ORDER BY price " . $sort);
+                            $stmt = $conn->query("SELECT * FROM products" . (isset($type) ? (" WHERE type = '" . $type . "'") : "") . " ORDER BY price " . $sort . " LIMIT $perPage OFFSET $offset");
                         } else {
-                            $stmt = $conn->query("SELECT * FROM products" . (isset($type) ? (" WHERE type = '" . $type . "'") : ""));
+                            $stmt = $conn->query("SELECT * FROM products" . (isset($type) ? (" WHERE type = '" . $type . "'") : "") . " LIMIT $perPage OFFSET $offset");
                         }
                     } else if (isset($search)) {
                         if (isset($sort)) {
-                            $stmt = $conn->prepare("SELECT * FROM products WHERE title LIKE :keyword OR id LIKE :id ORDER BY price " . $sort);
+                            $stmt = $conn->prepare("SELECT * FROM products WHERE title LIKE :keyword OR id LIKE :id ORDER BY price " . $sort . " LIMIT $perPage OFFSET $offset");
                         } else {
-                            $stmt = $conn->prepare("SELECT * FROM products WHERE title LIKE :keyword OR id LIKE :id");
+                            $stmt = $conn->prepare("SELECT * FROM products WHERE title LIKE :keyword OR id LIKE :id LIMIT $perPage OFFSET $offset");
                         }
                         $search = trim($search);
                         $stmt->bindValue(':keyword', "%$search%", PDO::PARAM_STR);
@@ -127,6 +139,11 @@ function getTitlePage($type, $search)
 
                     // Lấy kết quả tìm kiếm
                     $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                    // Lấy tổng số sản phẩm để tính số trang
+                    $totalStmt = $conn->query("SELECT COUNT(*) FROM products" . (isset($type) ? (" WHERE type = '" . $type . "'") : ""));
+                    $totalRows = $totalStmt->fetchColumn();
+                    $totalPages = ceil($totalRows / $perPage);
                 ?>
 
                     <div class=<?php echo (sizeof($products) > 0 ? "products" : "no-products") ?>>
@@ -185,6 +202,42 @@ function getTitlePage($type, $search)
                     ?>
                     </div>
             </div>
+        </div>
+        <!-- Hiển thị phân trang -->
+        <div class="pagination">
+            <?php if ($page > 1): ?>
+                <!-- Liên kết đến trang đầu và trang trước -->
+                <a href="?page=1<?= $search ? '&search=' . urlencode($search) : '' ?><?= $type ? '&type=' . urlencode($type) : '' ?><?= $sort ? '&sort=' . urlencode($sort) : '' ?>">|<</a>
+                <a href="?page=<?= $page - 1 ?><?= $search ? '&search=' . urlencode($search) : '' ?><?= $type ? '&type=' . urlencode($type) : '' ?><?= $sort ? '&sort=' . urlencode($sort) : '' ?>"><</a>
+            <?php endif; ?>
+
+            <?php
+            // Hiển thị các nút số trang
+            $startPage = max(1, $page - 2);
+            $endPage = min($totalPages, $page + 2);
+
+            if ($startPage > 1) {
+                echo '<span>...</span>';
+            }
+
+            for ($i = $startPage; $i <= $endPage; $i++) {
+                if ($i == $page) {
+                    echo "<strong>$i</strong>";
+                } else {
+                    echo "<a href='?page=$i" . ($search ? '&search=' . urlencode($search) : '') . ($type ? '&type=' . urlencode($type) : '') . ($sort ? '&sort=' . urlencode($sort) : '') . "'>$i</a>";
+                }
+            }
+
+            if ($endPage < $totalPages) {
+                echo '<span>...</span>';
+            }
+            ?>
+
+            <?php if ($page < $totalPages): ?>
+                <!-- Liên kết đến trang tiếp theo và trang cuối -->
+                <a href="?page=<?= $page + 1 ?><?= $search ? '&search=' . urlencode($search) : '' ?><?= $type ? '&type=' . urlencode($type) : '' ?><?= $sort ? '&sort=' . urlencode($sort) : '' ?>">></a>
+                <a href="?page=<?= $totalPages ?><?= $search ? '&search=' . urlencode($search) : '' ?><?= $type ? '&type=' . urlencode($type) : '' ?><?= $sort ? '&sort=' . urlencode($sort) : '' ?>">>|</a>
+            <?php endif; ?>
         </div>
     </div>
 
@@ -250,5 +303,7 @@ function getTitlePage($type, $search)
         }
     })
 </script>
+
+<script src="/AVCShop/public/js/padding-top-body.js"></script>
 
 </html>

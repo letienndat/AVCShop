@@ -18,30 +18,7 @@ include '../service/redirect.php';
 $username_ = $_POST['username'];
 
 if (isset($username_)) {
-    try {
-        // Kết nối đến cơ sở dữ liệu MySQL
-        $conn = new PDO("mysql:host=$servername;dbname=$dbname", $username, $password);
-        $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-
-        // Thực hiện truy vấn SQL
-        $stmt = $conn->prepare("SELECT password FROM account WHERE username = :username");
-        $stmt->bindParam(":username", $username_);
-        $stmt->execute();
-
-        if ($stmt->rowCount() > 0) {
-            echo '<script>
-                alert("Mật khẩu của bạn là: ' . $stmt->fetch(PDO::FETCH_ASSOC)['password'] . '");' .
-                'window.location.href="/AVCShop/src/sign_in.php";
-            </script>';
-        } else {
-            echo '<script>
-                alert("Xin lỗi, tên tài khoản không tồn tại!");
-                window.location.href="/AVCShop/src/forget_password.php";
-            </script>';
-        }
-    } catch (PDOException $e) {
-        echo '<script>console.log("Lỗi: ' . $e->getMessage() . '")</script>';
-    }
+    echo '<script>alert("Tính năng đang được triển khai!")</script>';
 }
 ?>
 
@@ -85,5 +62,7 @@ if (isset($username_)) {
     include '../inc/footer.php';
     ?>
 </body>
+
+<script src="/AVCShop/public/js/padding-top-body.js"></script>
 
 </html>

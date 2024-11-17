@@ -103,9 +103,10 @@ try {
     // Chuẩn bị truy vấn INSERT
     $username_ = "admin";
     $password_ = "admin";
+    $hashedPassword = password_hash($password_, PASSWORD_DEFAULT);
     $role = 1;
     $stmt = $conn->prepare("INSERT INTO account (username, password, role) VALUES (?, ?, ?)");
-    $stmt->bind_param('sss', $username_, $password_, $role);
+    $stmt->bind_param('sss', $username_, $hashedPassword, $role);
 
     if ($stmt->execute()) {
         echo "Tạo tài khoản admin thành công!" . "<br>";

@@ -25,8 +25,8 @@ try {
         // Sản phẩm đã tồn tại trong giỏ hàng, cập nhật số lượng
         $stmt = $conn->prepare("UPDATE shop_cart SET quantity = quantity + :quantity, time = :time WHERE username = :username AND product_id = :product_id");
         $stmt->bindParam(':quantity', $data['quantity']);
-        $stmt->bindParam(':time', $data['time']);
-        $stmt->bindParam(':username', $formattedDate);
+        $stmt->bindParam(':time', $formattedDate);
+        $stmt->bindParam(':username', $data['username']);
         $stmt->bindParam(':product_id', $data['product_id']);
         $stmt->execute();
     } else {

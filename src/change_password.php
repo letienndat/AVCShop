@@ -29,22 +29,44 @@ if (isset($old_password) && isset($new_password)) {
         $conn = new PDO("mysql:host=$servername;dbname=$dbname", $username, $password);
         $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-        // Chuẩn bị truy vấn UPDATE
-        $updateQuery = "UPDATE account SET password = :new_password WHERE username = :username AND password = :old_password";
-
-        // Thực hiện truy vấn UPDATE
-        $stmt = $conn->prepare($updateQuery);
-        $stmt->bindParam(':new_password', $new_password);
+        // Lấy mật khẩu đã mã hóa từ cơ sở dữ liệu
+        $stmt = $conn->prepare("SELECT password FROM account WHERE username = :username");
         $stmt->bindParam(':username', $username_);
-        $stmt->bindParam(':old_password', $old_password);
-
         $stmt->execute();
 
+        // Kiểm tra xem tài khoản có tồn tại không
         if ($stmt->rowCount() > 0) {
-            echo '<script>alert("Thay đổi mật khẩu thành công!")</script>';
-            echo '<script>window.location.href="/AVCShop/src/home.php"</script>';
+            // Lấy mật khẩu đã mã hóa từ cơ sở dữ liệu
+            $storedPasswordHash = $stmt->fetchColumn();
+
+            // Kiểm tra mật khẩu cũ với mật khẩu đã mã hóa
+            if (password_verify($old_password, $storedPasswordHash)) {
+                // Mã hóa mật khẩu mới trước khi lưu
+                $newPasswordHash = password_hash($new_password, PASSWORD_DEFAULT);
+
+                // Cập nhật mật khẩu mới vào cơ sở dữ liệu
+                $updateQuery = "UPDATE account SET password = :new_password WHERE username = :username";
+                $stmt = $conn->prepare($updateQuery);
+                $stmt->bindParam(':new_password', $newPasswordHash);
+                $stmt->bindParam(':username', $username_);
+                $stmt->execute();
+
+                // Kiểm tra việc cập nhật thành công
+                if ($stmt->rowCount() > 0) {
+                    echo '<script>alert("Thay đổi mật khẩu thành công!")</script>';
+                    echo '<script>window.location.href="/AVCShop/src/home.php"</script>';
+                } else {
+                    echo '<script>alert("Thay đổi mật khẩu thất bại, hãy thử lại!")</script>';
+                    echo '<script>window.location.href="/AVCShop/src/change_password.php"</script>';
+                }
+            } else {
+                // Mật khẩu cũ không đúng
+                echo '<script>alert("Mật khẩu cũ không đúng, hãy thử lại!")</script>';
+                echo '<script>window.location.href="/AVCShop/src/change_password.php"</script>';
+            }
         } else {
-            echo '<script>alert("Thay đổi mật khẩu thất bại, hãy thử lại!")</script>';
+            // Không tìm thấy tài khoản
+            echo '<script>alert("Tài khoản không tồn tại!")</script>';
             echo '<script>window.location.href="/AVCShop/src/change_password.php"</script>';
         }
     } catch (PDOException $e) {
@@ -133,5 +155,7 @@ if (isset($old_password) && isset($new_password)) {
         }
     }
 </script>
+
+<script src="/AVCShop/public/js/padding-top-body.js"></script>
 
 </html>
