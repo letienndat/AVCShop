@@ -118,18 +118,30 @@ function getTitlePage($type, $search)
                     $perPage = 30;  // Số sản phẩm mỗi trang
                     $offset = ($page - 1) * $perPage;
 
-                    // Truy vấn lấy danh sách giày từ bảng "products"
+                    // Truy vấn lấy danh sách giày từ bảng "products" và kết hợp với bảng "thumbnails"
                     if (!isset($search)) {
                         if (isset($sort)) {
-                            $stmt = $conn->query("SELECT * FROM products" . (isset($type) ? (" WHERE type = '" . $type . "'") : "") . " ORDER BY price " . $sort . " LIMIT $perPage OFFSET $offset");
+                            $stmt = $conn->query("SELECT p.*, t.path_image AS thumbnail_path FROM products p
+                                                LEFT JOIN thumbnails t ON p.id = t.product_id
+                                                " . (isset($type) ? (" WHERE p.type = '" . $type . "'") : "") . " 
+                                                ORDER BY p.price " . $sort . " LIMIT $perPage OFFSET $offset");
                         } else {
-                            $stmt = $conn->query("SELECT * FROM products" . (isset($type) ? (" WHERE type = '" . $type . "'") : "") . " LIMIT $perPage OFFSET $offset");
+                            $stmt = $conn->query("SELECT p.*, t.path_image AS thumbnail_path FROM products p
+                                                LEFT JOIN thumbnails t ON p.id = t.product_id
+                                                " . (isset($type) ? (" WHERE p.type = '" . $type . "'") : "") . " 
+                                                LIMIT $perPage OFFSET $offset");
                         }
                     } else if (isset($search)) {
                         if (isset($sort)) {
-                            $stmt = $conn->prepare("SELECT * FROM products WHERE title LIKE :keyword OR id LIKE :id ORDER BY price " . $sort . " LIMIT $perPage OFFSET $offset");
+                            $stmt = $conn->prepare("SELECT p.*, t.path_image AS thumbnail_path FROM products p
+                                                    LEFT JOIN thumbnails t ON p.id = t.product_id
+                                                    WHERE p.title LIKE :keyword OR p.id LIKE :id
+                                                    ORDER BY p.price " . $sort . " LIMIT $perPage OFFSET $offset");
                         } else {
-                            $stmt = $conn->prepare("SELECT * FROM products WHERE title LIKE :keyword OR id LIKE :id LIMIT $perPage OFFSET $offset");
+                            $stmt = $conn->prepare("SELECT p.*, t.path_image AS thumbnail_path FROM products p
+                                                    LEFT JOIN thumbnails t ON p.id = t.product_id
+                                                    WHERE p.title LIKE :keyword OR p.id LIKE :id 
+                                                    LIMIT $perPage OFFSET $offset");
                         }
                         $search = trim($search);
                         $stmt->bindValue(':keyword', "%$search%", PDO::PARAM_STR);
@@ -146,61 +158,59 @@ function getTitlePage($type, $search)
                     $totalPages = ceil($totalRows / $perPage);
                 ?>
 
-                    <div class=<?php echo (sizeof($products) > 0 ? "products" : "no-products") ?>>
-                        <?php
-                        if (sizeof($products) === 0) {
-                            echo "<span class=" . "notify-products" . ">Không tồn tại sản phẩm nào</span>";
-                        }
+                <div class=<?php echo (sizeof($products) > 0 ? "products" : "no-products") ?>>
+                    <?php
+                    if (sizeof($products) === 0) {
+                        echo "<span class=" . "notify-products" . ">Không tồn tại sản phẩm nào</span>";
+                    }
 
-                        foreach ($products as $product) {
-                        ?>
-                            <div class="product" title="<?php echo $product['title'] ?>">
-                                <div class="top-block">
+                    foreach ($products as $product) {
+                    ?>
+                        <div class="product" title="<?php echo $product['title'] ?>">
+                            <div class="top-block">
+                                <a href="
+                                    <?php
+                                    if (isset($search)) {
+                                        echo "/AVCShop/src/detail.php?product_id=" . $product['id'];
+                                    } else if (isset($type)) {
+                                        echo "/AVCShop/src/detail.php?product_id=" . $product['id'] . '&type=' . $type;
+                                    } else {
+                                        echo "/AVCShop/src/detail.php?product_id=" . $product['id'] . '&type=all';
+                                    }
+                                    ?>">
+                                    <img class="image-product" src=<?php echo $product['thumbnail_path'] ?> alt="<?php echo $product['title'] ?>">
+                                </a>
+                            </div>
+                            <div class="botton-block">
+                                <h4>
                                     <a href="
-                                        <?php
-                                        if (isset($search)) {
-                                            echo "/AVCShop/src/detail.php?product_id=" . $product['id'];
-                                        } else if (isset($type)) {
-                                            echo "/AVCShop/src/detail.php?product_id=" . $product['id'] . '&type=' . $type;
-                                        } else {
-                                            echo "/AVCShop/src/detail.php?product_id=" . $product['id'] . '&type=all';
-                                        }
-                                        ?>
-                                    ">
-                                        <img class="image-product" src=<?php echo $product['path_image'] ?> alt="<?php echo $product['title'] ?>">
-                                    </a>
+                                    <?php
+                                    if (isset($search)) {
+                                        echo "/AVCShop/src/detail.php?product_id=" . $product['id'];
+                                    } else if (isset($type)) {
+                                        echo "/AVCShop/src/detail.php?product_id=" . $product['id'] . '&type=' . $type;
+                                    } else {
+                                        echo "/AVCShop/src/detail.php?product_id=" . $product['id'] . '&type=all';
+                                    }
+                                    ?>">
+                                        <?php echo mb_strtoupper($product['title'], 'UTF-8') ?></a>
+                                </h4>
+                                <div class="id-product">
+                                    <?php echo "# " . $product['id'] ?>
                                 </div>
-                                <div class="botton-block">
-                                    <h4>
-                                        <a href="
-                                        <?php
-                                        if (isset($search)) {
-                                            echo "/AVCShop/src/detail.php?product_id=" . $product['id'];
-                                        } else if (isset($type)) {
-                                            echo "/AVCShop/src/detail.php?product_id=" . $product['id'] . '&type=' . $type;
-                                        } else {
-                                            echo "/AVCShop/src/detail.php?product_id=" . $product['id'] . '&type=all';
-                                        }
-                                        ?>
-                                    ">
-                                            <?php echo mb_strtoupper($product['title'], 'UTF-8') ?></a>
-                                    </h4>
-                                    <div class="id-product">
-                                        <?php echo "# " . $product['id'] ?>
-                                    </div>
-                                    <div class="price-product">
-                                        <span class="title-price">Giá: </span>
-                                        <span class="price-real"> <?php echo number_format($product['price'], 0, ",", ".") . " đ" ?> </span>
-                                    </div>
+                                <div class="price-product">
+                                    <span class="title-price">Giá: </span>
+                                    <span class="price-real"> <?php echo number_format($product['price'], 0, ",", ".") . " đ" ?> </span>
                                 </div>
                             </div>
+                        </div>
                     <?php
-                        }
-                    } catch (PDOException $e) {
-                        echo '<script>console.log("Lỗi: ' . $e->getMessage() . '")</script>';
                     }
-                    ?>
-                    </div>
+                } catch (PDOException $e) {
+                    echo '<script>console.log("Lỗi: ' . $e->getMessage() . '")</script>';
+                }
+                ?>
+                </div>
             </div>
         </div>
         <!-- Hiển thị phân trang -->

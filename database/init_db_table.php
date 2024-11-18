@@ -16,7 +16,7 @@ try {
     if ($conn->query($createDBQuery) === TRUE) {
         echo "Cơ sở dữ liệu đã được tạo hoặc đã tồn tại.<br>";
     } else {
-        echo "Lỗi khi tạo cơ sở dữ liệu: " . $conn->error . "<br>";
+        echo '<span style="color: red">Lỗi khi tạo cơ sở dữ liệu: ' . $conn->error . '</span><br>';
     }
 
     // // Chọn cơ sở dữ liệu mới tạo
@@ -30,11 +30,10 @@ try {
     // Tạo bảng products
     $createTableQuery = "CREATE TABLE IF NOT EXISTS products (
         id VARCHAR(20) PRIMARY KEY,
-        path_image VARCHAR(255) NOT NULL,
         title VARCHAR(255) NOT NULL,
         price INT(11) NOT NULL,
         type VARCHAR(255) NOT NULL,
-        brain VARCHAR(255) NOT NULL,
+        brand VARCHAR(255) NOT NULL,
         manufacture VARCHAR(255) NOT NULL,
         material VARCHAR(255) NOT NULL,
         description TEXT NOT NULL
@@ -42,7 +41,35 @@ try {
     if ($conn->query($createTableQuery) === TRUE) {
         echo "Tạo bảng Products thành công!" . "<br>";
     } else {
-        echo "Tạo bảng Products không thành công!" . "<br>";
+        echo '<span style="color: red">Tạo bảng Products không thành công!' . '</span><br>';
+    }
+
+    // Tạo bảng thumbnails
+    $createThumbnailsTableQuery = "CREATE TABLE IF NOT EXISTS thumbnails (
+        id VARCHAR(20) PRIMARY KEY,
+        product_id VARCHAR(20) NOT NULL UNIQUE,
+        title VARCHAR(255) NOT NULL,
+        path_image VARCHAR(255) NOT NULL,
+        FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
+    )";
+    if ($conn->query($createThumbnailsTableQuery) === TRUE) {
+        echo "Tạo bảng Thumbnails thành công!" . "<br>";
+    } else {
+        echo '<span style="color: red">Tạo bảng Thumbnails không thành công!' . '</span><br>';
+    }
+
+    // Tạo bảng images
+    $createImagesTableQuery = "CREATE TABLE IF NOT EXISTS images (
+        id VARCHAR(20) PRIMARY KEY,
+        product_id VARCHAR(20) NOT NULL,
+        title VARCHAR(255) NOT NULL,
+        path_image VARCHAR(255) NOT NULL,
+        FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
+    )";
+    if ($conn->query($createImagesTableQuery) === TRUE) {
+        echo "Tạo bảng Images thành công!" . "<br>";
+    } else {
+        echo '<span style="color: red">Tạo bảng Images không thành công!' . '</span><br>';
     }
 
     // Tạo bảng Account
@@ -54,7 +81,7 @@ try {
     if ($conn->query($createTableQuery) === TRUE) {
         echo "Tạo bảng Account thành công!" . "<br>";
     } else {
-        echo "Tạo bảng Account không thành công!" . "<br>";
+        echo '<span style="color: red">Tạo bảng Account không thành công!' . '</span><br>';
     }
 
     // Tạo bảng User
@@ -67,7 +94,7 @@ try {
     if ($conn->query($createTableQuery) === TRUE) {
         echo "Tạo bảng User thành công!" . "<br>";
     } else {
-        echo "Tạo bảng User không thành công!" . "<br>";
+        echo '<span style="color: red">Tạo bảng User không thành công!' . '</span><br>';
     }
 
     // Tạo bảng User_Product_Favorites
@@ -81,7 +108,7 @@ try {
     if ($conn->query($createTableQuery) === TRUE) {
         echo "Tạo bảng User_Product_Favorites thành công!" . "<br>";
     } else {
-        echo "Tạo bảng User_Product_Favorites không thành công!" . "<br>";
+        echo '<span style="color: red">Tạo bảng User_Product_Favorites không thành công!' . '</span><br>';
     }
 
     // Tạo bảng Shop_Cart
@@ -97,7 +124,7 @@ try {
     if ($conn->query($createTableQuery) === TRUE) {
         echo "Tạo bảng Shop_Cart thành công!" . "<br>";
     } else {
-        echo "Tạo bảng Shop_Cart không thành công!" . "<br>";
+        echo '<span style="color: red">Tạo bảng Shop_Cart không thành công!' . '</span><br>';
     }
 
     // Chuẩn bị truy vấn INSERT
@@ -111,7 +138,7 @@ try {
     if ($stmt->execute()) {
         echo "Tạo tài khoản admin thành công!" . "<br>";
     } else {
-        echo "Tạo tài khoản admin không thành công!" . "<br>";
+        echo '<span style="color: red">Tạo tài khoản admin không thành công!' . '</span><br>';
     }
 
     // Chuẩn bị truy vấn INSERT
@@ -124,7 +151,7 @@ try {
     if ($stmt->execute()) {
         echo "Tạo thông tin cho admin thành công!" . "<br>";
     } else {
-        echo "Tạo thông tin cho admin không thành công!" . "<br>";
+        echo '<span style="color: red">Tạo thông tin cho admin không thành công!' . '</span><br>';
     }
 
 } catch (PDOException $e) {

@@ -38,11 +38,15 @@ if ($username_local === null) {
             $conn = new PDO("mysql:host=$servername;dbname=$dbname", $username, $password);
             $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-            $stmt = $conn->prepare("SELECT products.*, shop_cart.quantity 
-                       FROM products 
-                       INNER JOIN shop_cart ON products.id = shop_cart.product_id 
-                       WHERE shop_cart.username = :username 
-                       ORDER BY shop_cart.time DESC");
+            $stmt = $conn->prepare("SELECT 
+                           products.*, 
+                           shop_cart.quantity, 
+                           thumbnails.path_image AS thumbnail
+                        FROM products
+                        INNER JOIN shop_cart ON products.id = shop_cart.product_id
+                        LEFT JOIN thumbnails ON products.id = thumbnails.product_id
+                        WHERE shop_cart.username = :username
+                        ORDER BY shop_cart.time DESC");
             $stmt->bindParam(':username', $username_local);
             $stmt->execute();
 
@@ -87,7 +91,7 @@ if ($username_local === null) {
                                     <td class="text-center col-image">
                                         <?php
                                         echo '<a href="/AVCShop/src/detail.php?product_id=' . $row['id'] . '">' .
-                                            '<img class="img-thumbnail" src="' . $row['path_image'] . '" alt="' . $row['title'] . '">' .
+                                            '<img class="img-thumbnail" src="' . $row['thumbnail'] . '" alt="' . $row['title'] . '">' .
                                             '</a>';
                                         ?>
                                     </td>

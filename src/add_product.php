@@ -39,7 +39,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             $title = $_POST['title'];
             $price = $_POST['price'];
             $type = $_POST['type'];
-            $brain = $_POST['brain'];
+            $brand = $_POST['brand'];
             $manufacture = $_POST['manufacture'];
             $material = $_POST['material'];
             $description = $_POST['description'];
@@ -49,13 +49,13 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 $conn = new PDO("mysql:host=$servername;dbname=$dbname", $username, $password);
                 $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-                $stmt = $conn->prepare("INSERT INTO products (id, path_image, title, price, type, brain, manufacture, material, description) VALUES (:id, :path_image, :title, :price, :type, :brain, :manufacture, :material, :description)");
+                $stmt = $conn->prepare("INSERT INTO products (id, path_image, title, price, type, brand, manufacture, material, description) VALUES (:id, :path_image, :title, :price, :type, :brand, :manufacture, :material, :description)");
                 $stmt->bindParam(':id', $id);
                 $stmt->bindParam(':path_image', $imageFileName);
                 $stmt->bindParam(':title', $title);
                 $stmt->bindParam(':price', $price);
                 $stmt->bindParam(':type', $type);
-                $stmt->bindParam(':brain', $brain);
+                $stmt->bindParam(':brand', $brand);
                 $stmt->bindParam(':manufacture', $manufacture);
                 $stmt->bindParam(':material', $material);
                 $stmt->bindParam(':description', $description);
@@ -130,9 +130,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                             </div>
                         </div>
                         <div class="form-group">
-                            <label for="brain" class="form-label col-sm-2">Thương hiệu<sup>*</sup>:</label>
+                            <label for="brand" class="form-label col-sm-2">Thương hiệu<sup>*</sup>:</label>
                             <div class="col-sm-10">
-                                <input type="text" id="brain" class="form-control" name="brain" placeholder="Thương hiệu" value="Thời trang Tuấn Vũ" autocomplete="one-time-code">
+                                <input type="text" id="brand" class="form-control" name="brand" placeholder="Thương hiệu" value="Thời trang Tuấn Vũ" autocomplete="one-time-code">
                             </div>
                         </div>
                         <div class="form-group">
@@ -174,7 +174,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             rules: [
                 isRequired('#title'),
                 isRequired('#price'),
-                isRequired('#brain'),
+                isRequired('#brand'),
                 isRequired('#manufacture'),
                 isRequired('#material'),
                 isRequired('#description')

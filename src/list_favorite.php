@@ -58,11 +58,18 @@ $sort = $_GET['sort'];
                     $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
                     // Chuẩn bị câu truy vấn SQL
-                    $sqlQuery = "SELECT products.id, products.title, products.price, products.path_image
+                    $sqlQuery = "SELECT 
+                                    products.id, 
+                                    products.title, 
+                                    products.price, 
+                                    thumbnails.path_image AS thumbnail
                                 FROM products
                                 JOIN user_product_favorites ON products.id = user_product_favorites.product_id
+                                LEFT JOIN thumbnails ON products.id = thumbnails.product_id
                                 WHERE user_product_favorites.username = :username"
                         . (isset($sort) ? (' ORDER BY products.price ' . ($sort === 'asc' ? 'ASC' : 'DESC')) : '');
+
+
 
                     // Chuẩn bị statement
                     $stmt = $conn->prepare($sqlQuery);
@@ -90,7 +97,7 @@ $sort = $_GET['sort'];
                                         echo "/AVCShop/src/detail.php?product_id=" . $product['id'];
                                         ?>
                                     ">
-                                        <img class="image-product" src=<?php echo $product['path_image'] ?> alt="<?php echo $product['title'] ?>">
+                                        <img class="image-product" src=<?php echo $product['thumbnail'] ?> alt="<?php echo $product['title'] ?>">
                                     </a>
                                 </div>
                                 <div class="botton-block">

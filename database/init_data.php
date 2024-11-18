@@ -2,33 +2,24 @@
 $root = $_SERVER['DOCUMENT_ROOT'];
 require_once $root . '/AVCShop/database/info_connect_db.php';
 require_once $root . '/AVCShop/model/product.php';
+require_once $root . '/AVCShop/model/image.php';
 
 try {
     // Kết nối đến cơ sở dữ liệu MySQL
     $conn = new mysqli($servername, $username, $password, $dbname);
 
-    $products = array();
+    // Tạo bảng thumbnails nếu chưa tồn tại
+    $createThumbnailsTableQuery = "CREATE TABLE IF NOT EXISTS thumbnails (
+        id VARCHAR(36) PRIMARY KEY,
+        product_id VARCHAR(36) NOT NULL UNIQUE,
+        title VARCHAR(255) NOT NULL,
+        path_image VARCHAR(255) NOT NULL,
+        FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
+    )";
+    $conn->query($createThumbnailsTableQuery);
 
-    // for ($i=1; $i <= 32; $i++) { 
-    //     $id = strtoupper(uniqid());
-    //     $path_temp = '../temp/images/converse (' . $i . ').jpg';
-    //     $path_image = '../public/images/' . $id . '.jpg';
-    //     $type = null;
-    //     if ($i <= 7) {
-    //         $type = 'classic';
-    //     } else if ($i <= 12) {
-    //         $type = 'chuck_1970s';
-    //     } else if ($i <= 18) {
-    //         $type = 'chuck_2';
-    //     } else if ($i <= 27) {
-    //         $type = 'seasonal';
-    //     } else {
-    //         $type = 'sneaker';
-    //     }
-    //     copy($path_temp, $path_image);
-    //     $path_image = '/AVCShop/public/images/' . $id . '.jpg';
-    //     array_push($products, new Product($id, $path_image, "Converse Chuck Taylor All Star Festival Smoothie", random_int(800, 2000) * 1000, $type, "Converse", "Việt Nam", "Textile", "Thiết kế cổ cao cá tính giúp bảo vệ an toàn vùng mắt cá chân"));
-    // }
+    $products = array();
+    $images = array();
 
     $sourceDirectory = '../temp/images'; // Thư mục nguồn
     $destinationDirectory = '../public/images/products'; // Thư mục đích
@@ -54,7 +45,6 @@ try {
 
         // Kiểm tra nếu là thư mục
         if (is_dir($currentSubdirectory)) {
-
             // Lấy danh sách các tệp ảnh trong thư mục con
             $files = scandir($currentSubdirectory);
 
@@ -64,37 +54,71 @@ try {
                     continue;
                 }
 
-                // Đường dẫn đầy đủ của tệp hiện tại
-                $currentFile = $currentSubdirectory . DIRECTORY_SEPARATOR . $file;
+                // Tạo sản phẩm mới
+                $productId = strtoupper(uniqid()); // Tạo ID duy nhất cho sản phẩm
+                $product = new Product($productId, "Converse Chuck Taylor All Star Festival Smoothie", random_int(800, 2000) * 1000, $type, "Converse", "Việt Nam", "Textile", "Thiết kế cổ cao cá tính giúp bảo vệ an toàn vùng mắt cá chân");
+                array_push($products, $product);
+    
+                // Chuẩn bị truy vấn INSERT cho bảng `products`
+                $stmtProduct = $conn->prepare("INSERT INTO products (id, title, price, type, brand, manufacture, material, description) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+                $stmtProduct->bind_param('ssssssss', $product->id, $product->title, $product->price, $product->type, $product->brand, $product->manufacture, $product->material, $product->description);
+                $stmtProduct->execute();
+    
+                // Kiểm tra xem sản phẩm đã được thêm thành công chưa và lấy `product_id`
+                if ($stmtProduct->affected_rows > 0) {
+    
+                    // Tiến hành thêm vào bảng thumbnails nếu sản phẩm tồn tại
+                    $thumbnailSaved = false; // Kiểm tra đã lưu thumbnail hay chưa
 
-                // Kiểm tra nếu là file ảnh
-                if (is_file($currentFile) && preg_match('/\.(jpg|jpeg|png|gif|bmp)$/i', $file)) {
-                    $id = strtoupper(uniqid());
-                    // Tạo tên mới
-                    $newFileName = $id . '.jpg';
+                    // Đường dẫn đầy đủ của tệp hiện tại
+                    $currentFile = $currentSubdirectory . DIRECTORY_SEPARATOR . $file;
 
-                    // Đường dẫn tệp mới trong thư mục đích
-                    $newFile = $destinationDirectory . DIRECTORY_SEPARATOR . $newFileName;
+                    // Kiểm tra nếu là file ảnh
+                    if (is_file($currentFile) && preg_match('/\.(jpg|jpeg|png|gif|bmp)$/i', $file)) {
+                        $thumbnailId = strtoupper(uniqid());
+                        $newFileNameThumbnail = 'thumbnail_' . $thumbnailId . '.jpg'; // Tên ảnh mới cho thumbnail
 
-                    // Debug thông tin trước khi copy
-                    echo "Đang xử lý tệp: $currentFile" . "<br>";
-                    echo "Tệp sẽ được sao chép đến: $newFile" . "<br>";
+                        // Đường dẫn tệp mới trong thư mục đích
+                        $newFileThumbnail = $destinationDirectory . DIRECTORY_SEPARATOR . $newFileNameThumbnail;
 
-                    // Sao chép tệp và kiểm tra lỗi
-                    if (copy($currentFile, $newFile)) {
-                        $path_image = '/AVCShop/public/images/products/' . $newFileName;
-                        array_push($products, new Product($id, $path_image, "Converse Chuck Taylor All Star Festival Smoothie", random_int(800, 2000) * 1000, $type, "Converse", "Việt Nam", "Textile", "Thiết kế cổ cao cá tính giúp bảo vệ an toàn vùng mắt cá chân"));
-                        echo "Sao chép thành công!" . "<br>";
-                    } else {
-                        // Nếu thất bại, hiển thị lỗi chi tiết
-                        echo "Lỗi khi sao chép tệp: $currentFile -> $newFile" . "<br>";
-                        if (!is_writable($newSubdirectory)) {
-                            echo "Thư mục đích không ghi được: $newSubdirectory" . "<br>";
+                        // Sao chép tệp
+                        if (copy($currentFile, $newFileThumbnail)) {
+                            $path_image_thumbnail = '/AVCShop/public/images/products/' . $newFileNameThumbnail;
+
+                            // Lưu thumbnail vào bảng `thumbnails` (chỉ lưu lần đầu)
+                            if (!$thumbnailSaved) {
+                                // Lưu thumbnail
+                                $thumbnailTitle = "Thumbnail sản phẩm" . $productId;
+                                $thumbnailStmt = $conn->prepare("INSERT INTO thumbnails (id, product_id, title, path_image) VALUES (?, ?, ?, ?)");
+                                $thumbnailStmt->bind_param('ssss', $thumbnailId, $productId, $thumbnailTitle, $path_image_thumbnail);
+                                $thumbnailStmt->execute();
+                                $thumbnailSaved = true;
+                            }
+
+                            // Tạo thêm 3 bản sao ảnh trong bảng `images` với ID là UUID
+                            for ($i = 1; $i <= 10; $i++) {
+                                $imageId = strtoupper(uniqid());
+                                $newFileNameImage = 'image_' . $imageId . '.jpg'; // Tên ảnh mới cho image
+
+                                // Đường dẫn tệp mới trong thư mục đích
+                                $newFileImage = $destinationDirectory . DIRECTORY_SEPARATOR . $newFileNameImage;
+
+                                // Sao chép tệp
+                                if (copy($currentFile, $newFileImage)) {
+                                    $path_image = '/AVCShop/public/images/products/' . $newFileNameImage;
+
+                                    // Lưu image vào array images
+                                    $imageTitle = "Hình ảnh sản phẩm " . $productId;
+                                    $image = new Image($imageId, $productId, $imageTitle, $path_image); // ID của ảnh sao chép = UUID
+                                    $images[] = $image;
+                                }
+                            }
+                        } else {
+                            echo "Lỗi khi sao chép tệp: $currentFile -> $newFile" . "<br>";
                         }
-                        if (!is_readable($currentFile)) {
-                            echo "Tệp nguồn không đọc được: $currentFile" . "<br>";
-                        }
-                    }
+                    } 
+                } else {
+                    echo "Không thể thêm sản phẩm vào bảng `products`." . "<br>";
                 }
             }
         }
@@ -102,18 +126,18 @@ try {
 
     echo "Hoàn tất sao chép và đổi tên ảnh!" . "<br>";
 
-    // Chuẩn bị truy vấn INSERT
-    $stmt = $conn->prepare("INSERT INTO products (id, path_image, title, price, type, brain, manufacture, material, description) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+    // Chuẩn bị truy vấn INSERT cho bảng `images`
+    $stmtImage = $conn->prepare("INSERT INTO images (id, product_id, title, path_image) VALUES (?, ?, ?, ?)");
 
-    // Thực hiện INSERT cho từng đôi giày
-    foreach ($products as $product) {
-        $stmt->bind_param('sssssssss', $product->id, $product->path_image, $product->title, $product->price, $product->type, $product->brain, $product->manufacture, $product->material, $product->description);
-        $stmt->execute();
+    foreach ($images as $image) {
+        $stmtImage->bind_param('ssss', $image->id, $image->product_id, $image->title, $image->path_image);
+        $stmtImage->execute();
     }
 
     echo "Dữ liệu đã được thêm vào cơ sở dữ liệu thành công!" . "<br>";
-} catch (PDOException $e) {
+} catch (Exception $e) {
     echo "Lỗi: " . $e->getMessage();
 }
 
 $conn = null;
+?>

@@ -1,11 +1,24 @@
+<?php
+$root = $_SERVER['DOCUMENT_ROOT'];
+require_once $root . '/AVCShop/local/const.php';
+?>
+
 <footer>
     <div class="footer-top"></div>
     <div class="footer-center">
         <div class="footer-center-sub">
             <div class="footer-content">
-                <strong>AVC Shop</strong>
+                <strong>
+                    <?php
+                        echo AppConstants::NAME_PROJECT;
+                    ?>
+                </strong>
                 <ul class="ul-member">
-                    <li class="li-name-member">Nguyễn Tuấn Vũ</li>
+                    <li class="li-name-member">
+                        <?php
+                            echo AppConstants::FULL_NAME_OWNER;
+                        ?>
+                    </li>
                 </ul>
             </div>
         </div>
@@ -31,6 +44,10 @@
         </div>
     </div>
     <div class="footer-botton">
-        <span>©AVCShop - Nguyễn Tuấn Vũ</span>
+        <span>
+            ©<?php
+                echo AppConstants::NAME_PROJECT . " - " . AppConstants::FULL_NAME_OWNER;
+            ?>
+        </span>
     </div>
 </footer>

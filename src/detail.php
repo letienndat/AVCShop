@@ -26,27 +26,39 @@
             $conn = new PDO("mysql:host=$servername;dbname=$dbname", $username, $password);
             $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-            // Truy vấn lấy giày từ bảng "products"
-            $stmt = $conn->query("SELECT * FROM products" . " WHERE id = '" . $product_id . "'");
+            // Truy vấn để lấy thumbnail và tất cả ảnh chi tiết của sản phẩm
+            $stmt = $conn->prepare("SELECT p.title, p.id, p.material, p.brand, p.manufacture, p.price, p.description, t.path_image AS thumbnail_path, i.path_image AS image_path
+                                    FROM products p
+                                    LEFT JOIN thumbnails t ON p.id = t.product_id
+                                    LEFT JOIN images i ON p.id = i.product_id
+                                    WHERE p.id = :product_id");
+            $stmt->bindParam(':product_id', $product_id, PDO::PARAM_STR);
             $stmt->execute();
+            $product = $stmt->fetch(PDO::FETCH_ASSOC);
 
-            // Lấy kết quả tìm kiếm
-            $product = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            // Khởi tạo mảng $images chứa tất cả các ảnh
+            $images = array();
 
-            echo $product[0]['title'];
+            // Thêm ảnh thumbnail vào mảng $images
+            if (!empty($product['thumbnail_path'])) {
+            $images[] = $product['thumbnail_path'];
+            }
+
+            // Thêm các ảnh chi tiết vào mảng $images (nếu có)
+            $stmtImages = $conn->prepare("SELECT path_image FROM images WHERE product_id = :product_id");
+            $stmtImages->bindParam(':product_id', $product_id, PDO::PARAM_STR);
+            $stmtImages->execute();
+            $additionalImages = $stmtImages->fetchAll(PDO::FETCH_ASSOC);
+
+            // Lặp qua các ảnh chi tiết và thêm vào mảng $images
+            foreach ($additionalImages as $image) {
+            $images[] = $image['path_image'];
+            }
         } catch (PDOException $e) {
             echo '<script>console.log("Lỗi: ' . $e->getMessage() . '")</script>';
         }
         ?>
     </title>
-
-    <?php
-    if (sizeof($product) === 0) {
-        echo '<script>window.location.href="/AVCShop/src/home.php"</script>';
-    } else {
-        $product = $product[0];
-    }
-    ?>
 </head>
 
 <body>
@@ -93,7 +105,25 @@
             <div class="col-sm-12">
                 <div class="content-product-left col-sm-5">
                     <div class="image-single-box">
-                        <img src="<?php echo $product['path_image'] ?>" alt="Ảnh sản phẩm">
+                    <div class="product-images">
+                        <!-- Danh sách ảnh nhỏ nằm bên trái -->
+                        <div class="thumbnail-images-container">
+                            <!-- Nút mũi tên lên -->
+                            <button class="arrow-btn arrow-btn-up" onclick="changeSelectedImage('up')">&#8593;</button>
+
+                            <div class="thumbnail-images" id="thumbnailContainer">
+                                <!-- Các ảnh thu nhỏ được hiển thị sẽ được thay đổi dần qua JS -->
+                            </div>
+
+                            <!-- Nút mũi tên xuống -->
+                            <button class="arrow-btn arrow-btn-down" onclick="changeSelectedImage('down')">&#8595;</button>
+                        </div>
+
+                        <!-- Ảnh lớn được chọn -->
+                        <div id="mainImageContainer" class="container-main-image">
+                            <img id="mainImage" src="" alt="Main Image" class="main-image">
+                        </div>
+                    </div>
                     </div>
                 </div>
                 <div class="content-product-right col-sm-7">
@@ -109,8 +139,8 @@
                             <div class="metarial-product">
                                 <span><?php echo "Chất liệu: " . $product['material'] ?></span>
                             </div>
-                            <div class="brain-product">
-                                <span><?php echo "Thương hiệu: " . $product['brain'] ?></span>
+                            <div class="brand-product">
+                                <span><?php echo "Thương hiệu: " . $product['brand'] ?></span>
                             </div>
                             <div class="manufacture-product">
                                 <span><?php echo "Sản xuất: " . $product['manufacture'] ?></span>
@@ -182,6 +212,97 @@
 </body>
 
 <script>
+    // Mảng ảnh từ PHP
+    let images = <?php echo json_encode($images); ?>;
+    let visibleImagesIndices = [0, 1, 2, 3].slice(0, Math.min(4, images.length));  // Chỉ số của những ảnh đang hiển thị (tối đa là 4)
+    let selectedIndex = 0;  // Chỉ số của ảnh đang được chọn
+
+    // Cập nhật ảnh thu nhỏ và ảnh chính
+    function updateThumbnailImages() {
+        let thumbnailContainer = document.getElementById('thumbnailContainer');
+        let allThumbnails = document.querySelectorAll('.small-image');
+        
+        // Đảm bảo số lượng ảnh thu nhỏ đúng
+        visibleImagesIndices.forEach((index, idx) => {
+            let imgElement = allThumbnails[idx];  // Lấy thẻ img tương ứng
+            imgElement.src = images[index];  // Cập nhật src của ảnh thu nhỏ
+
+            imgElement.classList.toggle('selected-thumbnail', index === selectedIndex);  // Cập nhật lớp 'selected-thumbnail'
+        });
+
+        // Cập nhật ảnh chính
+        document.getElementById('mainImage').src = images[selectedIndex];
+    }
+
+    // Chọn ảnh chính từ ảnh thu nhỏ
+    function changeMainImage(imagePath, imgElement) {
+        document.getElementById('mainImage').src = imagePath;
+        let allThumbnails = document.querySelectorAll('.small-image');
+        allThumbnails.forEach(img => img.classList.remove('selected-thumbnail'));
+        imgElement.classList.add('selected-thumbnail');
+    }
+
+    // Xử lý bấm nút lên/xuống
+    function changeSelectedImage(direction) {
+        let firstVisibleImage = visibleImagesIndices[0];
+        let lastVisibleImage = visibleImagesIndices[visibleImagesIndices.length - 1];
+
+        if (direction === 'up') {
+            // Bấm lên
+            if (selectedIndex > firstVisibleImage) {
+                selectedIndex--;  // Di chuyển ảnh chọn lên
+            } else {
+                // Nếu ảnh chọn là ảnh đầu tiên trong danh sách, dịch chuyển danh sách lên
+                if (firstVisibleImage > 0) {
+                    visibleImagesIndices = visibleImagesIndices.map(index => index - 1);  // Dịch chuyển tất cả các ảnh
+                    selectedIndex--;  // Cập nhật lại ảnh chọn
+                } else {
+                    // Nếu ảnh chọn là ảnh đầu tiên trong danh sách, chuyển về ảnh cuối cùng
+                    selectedIndex = images.length - 1;
+
+                    // Cập nhật lại các ảnh thu nhỏ (vì đã chuyển ảnh chọn về cuối cùng)
+                    visibleImagesIndices = Array.from({ length: Math.min(4, images.length) }, (_, i) => images.length - Math.min(4, images.length) + i);
+                }
+            }
+        } else if (direction === 'down') {
+            // Bấm xuống
+            if (selectedIndex < lastVisibleImage) {
+                selectedIndex++;  // Di chuyển ảnh chọn xuống
+            } else {
+                // Nếu ảnh chọn là ảnh cuối cùng trong danh sách, dịch chuyển danh sách xuống
+                if (lastVisibleImage < images.length - 1) {
+                    visibleImagesIndices = visibleImagesIndices.map(index => index + 1);  // Dịch chuyển tất cả các ảnh
+                    selectedIndex++;  // Cập nhật lại ảnh chọn
+                } else {
+                    visibleImagesIndices = [0, 1, 2, 3].slice(0, Math.min(4, images.length));
+                    selectedIndex = 0;
+                }
+            }
+        }
+
+        // Cập nhật lại ảnh thu nhỏ và ảnh chính
+        updateThumbnailImages();
+    }
+
+    // Gọi updateThumbnailImages khi trang được tải
+    document.addEventListener("DOMContentLoaded", function() {
+        // Tạo các ảnh thu nhỏ ban đầu
+        let thumbnailContainer = document.getElementById('thumbnailContainer');
+        visibleImagesIndices.forEach((index) => {
+            let imgElement = document.createElement('img');
+            imgElement.src = images[index];
+            imgElement.alt = 'Thumbnail ' + (index + 1);
+            imgElement.className = 'small-image';
+            imgElement.onclick = function() {
+                changeMainImage(images[index], imgElement);
+            };
+            thumbnailContainer.appendChild(imgElement);
+        });
+
+        // Cập nhật ảnh thu nhỏ và ảnh chính sau khi tạo
+        updateThumbnailImages();
+    });
+
     const click_favorite = (status, username_, product_id) => {
         if (status) {
             var i_favorite = document.querySelector('#button-favorite > .fa-heart')

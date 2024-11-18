@@ -122,14 +122,14 @@
 
 .id-product,
 .metarial-product,
-.brain-product,
+.brand-product,
 .manufacture-product {
   max-width: 100%;
 }
 
 .id-product > span,
 .metarial-product > span,
-.brain-product > span,
+.brand-product > span,
 .manufacture-product > span {
   font-family: "Roboto", sans-serif;
   font-size: 14px;
@@ -309,4 +309,81 @@
   cursor: pointer;
   color: #fff;
   background: #000;
+}
+
+.product-images {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+}
+
+.thumbnail-images-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  overflow: hidden; /* Ẩn thanh cuộn */
+  height: fit-content;
+}
+
+.thumbnail-images {
+  margin: 30px 0;
+  display: flex;
+  gap: 5px;
+  flex-direction: column;
+  align-items: center;
+  overflow-y: hidden; /* Ẩn thanh cuộn dọc */
+  transition: transform 0.3s ease-in-out; /* Hiệu ứng di chuyển mượt mà */
+}
+
+.thumbnail-images img {
+  cursor: pointer;
+  width: 80px; /* Chiều rộng ảnh nhỏ */
+  height: 80px; /* Chiều cao ảnh nhỏ */
+  object-fit: cover;
+  opacity: 0.6; /* Làm mờ ảnh không chọn */
+  box-sizing: border-box;
+}
+
+.thumbnail-images img:hover {
+  box-sizing: border-box;
+  border: 1px solid gray; /* Đánh dấu ảnh đã chọn */
+}
+
+.thumbnail-images img.selected-thumbnail {
+  border: 1px solid #333333; /* Đánh dấu ảnh đã chọn */
+  opacity: 1; /* Ảnh chọn sẽ rõ ràng hơn */
+}
+
+.arrow-btn {
+  position: absolute;
+  width: 100%;
+  background: rgba(0, 0, 0, 0.3);
+  color: white;
+  padding: 5px;
+  cursor: pointer;
+  border: none;
+  text-align: center;
+  font-size: 20px;
+}
+
+.arrow-btn.arrow-btn-up {
+  top: 0;
+  height: 25px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.arrow-btn.arrow-btn-down {
+  bottom: 0;
+  height: 25px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.container-main-image > .main-image {
+  max-height: 600px;
+  width: 420px;
 }
