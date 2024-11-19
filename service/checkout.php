@@ -42,7 +42,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             echo json_encode($response);
         }
     } else {
-        $response = array("message" => "Vui lòng chọn đơn trước khi thực hiện thanh toán!", "status" => 1);
+        $response = array("message" => "Vui lòng chọn sản phẩm trước khi thực hiện thanh toán!", "status" => 1);
         header('Content-Type: application/json');
         echo json_encode($response);
     }

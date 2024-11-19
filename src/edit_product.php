@@ -60,10 +60,16 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             } else {
                 $response['success'] = false;
                 $response['message'] = 'Không thể cập nhật ảnh đại diện bởi vì không tìm thấy nó!';
+
+                echo json_encode($response);
+                exit;
             }
         } catch (PDOException $e) {
             $response['success'] = false;
             $response['message'] = 'Lỗi: ' . $e->getMessage();
+
+            echo json_encode($response);
+            exit;
         }
     }
 
@@ -104,18 +110,30 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                         } else {
                             $response['success'] = false;
                             $response['message'] = "Lỗi khi lưu ảnh vào cơ sở dữ liệu: " . $conn->error;
+
+                            echo json_encode($response);
+                            exit;
                         }
                     } else {
                         $response['success'] = false;
                         $response['message'] = "Lỗi khi di chuyển ảnh.";
+
+                        echo json_encode($response);
+                        exit;
                     }
                 } else {
                     $response['success'] = false;
                     $response['message'] = "Ảnh không hợp lệ. Chỉ chấp nhận ảnh có định dạng JPG, JPEG, PNG, WEBP.";
+
+                    echo json_encode($response);
+                    exit;
                 }
             } else {
                 $response['success'] = false;
                 $response['message'] = "Lỗi khi upload ảnh: " . $imageError;
+
+                echo json_encode($response);
+                exit;
             }
         }
     }
@@ -151,18 +169,30 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                         } else {
                             $response['success'] = false;
                             $response['message'] = "Lỗi khi xóa file ảnh.";
+
+                            echo json_encode($response);
+                            exit;
                         }
                     } else {
                         $response['success'] = false;
                         $response['message'] = "Ảnh không tồn tại trong thư mục.";
+
+                        echo json_encode($response);
+                        exit;
                     }
                 } else {
                     $response['success'] = false;
                     $response['message'] = "Lỗi khi xóa ảnh khỏi cơ sở dữ liệu.";
+
+                    echo json_encode($response);
+                    exit;
                 }
             } else {
                 $response['success'] = false;
                 $response['message'] = "Ảnh không tồn tại trong cơ sở dữ liệu.";
+
+                echo json_encode($response);
+                exit;
             }
         }
     }     

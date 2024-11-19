@@ -14,41 +14,50 @@ if ($_SERVER["REQUEST_METHOD"] === "GET") {
     $id = $_GET['product_id'];
 
     try {
-        // Tạo kết nối đến CSDL
+        // Kết nối đến CSDL
         $conn = new PDO("mysql:host=$servername;dbname=$dbname", $username, $password);
         $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-        // Xóa sản phẩm dựa trên id
-        $stmt = $conn->prepare("SELECT path_image FROM products WHERE id = :id");
+        // Bắt đầu transaction
+        $conn->beginTransaction();
+
+        // Lấy đường dẫn ảnh từ bảng thumbnails
+        $stmt = $conn->prepare("SELECT path_image FROM thumbnails WHERE product_id = :id");
         $stmt->bindParam(':id', $id);
         $stmt->execute();
+        $thumbnailPaths = $stmt->fetchAll(PDO::FETCH_COLUMN);
 
-        $path_image = ($stmt->fetch())['path_image'];
-        $path_image = str_replace("/AVCShop", "..", $path_image);
+        // Lấy đường dẫn ảnh từ bảng images
+        $stmt = $conn->prepare("SELECT path_image FROM images WHERE product_id = :id");
+        $stmt->bindParam(':id', $id);
+        $stmt->execute();
+        $imagePaths = $stmt->fetchAll(PDO::FETCH_COLUMN);
 
-        // Xóa sản phẩm dựa trên id
+        // Gộp tất cả đường dẫn ảnh lại
+        $allPaths = array_merge($thumbnailPaths, $imagePaths);
+
+        // Xóa sản phẩm trong bảng products
         $stmt = $conn->prepare("DELETE FROM products WHERE id = :id");
         $stmt->bindParam(':id', $id);
         $stmt->execute();
 
-        // Kiểm tra số hàng bị ảnh hưởng bởi câu lệnh DELETE
-        $rows_affected = $stmt->rowCount();
+        // Commit transaction
+        $conn->commit();
 
-        if ($rows_affected > 0) {
-            // Sản phẩm đã được xóa thành công
-            echo '<script>alert("Xóa sản phẩm thành công!")</script>';
-
-            // Tìm file ảnh
-            if (file_exists($path_image)) { 
-                // Xóa file ảnh
-                unlink($path_image);
+        // Kiểm tra và xóa file ảnh
+        foreach ($allPaths as $path) {
+            $path = str_replace("/AVCShop", "..", $path); // Chuyển đổi đường dẫn nếu cần
+            if (file_exists($path)) {
+                unlink($path); // Xóa file ảnh
             }
-        } else {
-            // Không tìm thấy sản phẩm với id tương ứng hoặc đã có lỗi xảy ra trong quá trình xóa
-            echo '<script>alert("Thất bại! ID không trùng với bất kỳ sản phẩm nào")</script>';
         }
+
+        echo '<script>alert("Xóa sản phẩm thành công!")</script>';
         echo '<script>window.location.href = "/AVCShop/src/home.php"</script>';
     } catch (PDOException $e) {
+        // Rollback nếu có lỗi
+        $conn->rollBack();
+        echo '<script>alert("Lỗi xảy ra: ' . $e->getMessage() . '")</script>';
         echo '<script>console.log("Lỗi: ' . $e->getMessage() . '")</script>';
     }
 }

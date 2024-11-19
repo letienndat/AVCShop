@@ -77,6 +77,10 @@
   flex-direction: column;
 }
 
+.content-product-left {
+  align-items: start !important;
+}
+
 .image-single-box {
   width: fit-content;
 }
@@ -318,6 +322,7 @@
 }
 
 .thumbnail-images-container {
+  width: 80px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -383,7 +388,10 @@
   align-items: center;
 }
 
+.container-main-image {
+  flex: 1;
+}
+
 .container-main-image > .main-image {
-  max-height: 600px;
-  width: 420px;
+  width: 100%;
 }

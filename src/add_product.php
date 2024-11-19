@@ -1,16 +1,10 @@
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-    <?php include '../inc/head.php'; ?>
-    <link rel="stylesheet" href="../public/css/add_product.css" />
-    <title>Thêm Sản Phẩm</title>
-</head>
-
 <?php
+session_start();
+
 $root = $_SERVER['DOCUMENT_ROOT'];
 require_once $root . '/AVCShop/database/info_connect_db.php';
 require_once $root . '/AVCShop/local/data.php';
+require_once $root . '/AVCShop/local/const.php';
 
 if ($username_local === null || $role !== 1) {
     header("Location: " . "/AVCShop/src/home.php");
@@ -19,63 +13,117 @@ if ($username_local === null || $role !== 1) {
 
 // Xử lý form khi người dùng gửi
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    // Kiểm tra xem người dùng đã gửi hình ảnh lên hay chưa
-    if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
+    // Biến lưu trạng thái phản hồi
+    $response = ['success' => false, 'message' => '', 'product_id' => ''];
 
-        $id = strtoupper(uniqid());
+    try {
+        // Kết nối đến cơ sở dữ liệu
+        $conn = new PDO("mysql:host=$servername;dbname=$dbname", $username, $password);
+        $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-        // Đường dẫn thư mục lưu trữ hình ảnh
-        $uploadDir = '/public/images/products/';
+        // Tạo sản phẩm mới
+        $id = strtoupper(uniqid()); // Tạo ID sản phẩm mới
+        $stmt = $conn->prepare("INSERT INTO products (id, title, price, type, brand, manufacture, material, description) VALUES (:id, :title, :price, :type, :brand, :manufacture, :material, :description)");
+        $stmt->bindParam(':id', $id);
+        $stmt->bindParam(':title', $_POST['title']);
+        $stmt->bindParam(':price', $_POST['price']);
+        $stmt->bindParam(':type', $_POST['type']);
+        $stmt->bindParam(':brand', $_POST['brand']);
+        $stmt->bindParam(':manufacture', $_POST['manufacture']);
+        $stmt->bindParam(':material', $_POST['material']);
+        $stmt->bindParam(':description', $_POST['description']);
+        $stmt->execute();
 
-        $imageFileName = $id . '.jpg';
+        $uploadDir = '../public/images/products';
 
-        // Đường dẫn tệp tạm thời của hình ảnh
-        $tempImageFile = $_FILES['image']['tmp_name'];
+        // Xử lý ảnh thumbnail
+        if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
+            // Tạo ID thumbnail mới
+            $idThumbnail = strtoupper(uniqid());
 
-        // Di chuyển hình ảnh vào thư mục lưu trữ
-        if (move_uploaded_file($tempImageFile, '..' . $uploadDir . $imageFileName)) {
-            // Hình ảnh đã được lưu thành công, tiếp tục lưu thông tin sản phẩm vào cơ sở dữ liệu
-            $imageFileName = '/AVCShop' . $uploadDir . $imageFileName;
-            $title = $_POST['title'];
-            $price = $_POST['price'];
-            $type = $_POST['type'];
-            $brand = $_POST['brand'];
-            $manufacture = $_POST['manufacture'];
-            $material = $_POST['material'];
-            $description = $_POST['description'];
+            // Đường dẫn lưu trữ
+            $imageFileName = 'thumbnail_' . $idThumbnail . '.jpg'; // Đặt tên file theo idThumbnail
+            $destinationPath = $uploadDir . DIRECTORY_SEPARATOR . $imageFileName;
 
-            // Tiến hành lưu thông tin sản phẩm vào cơ sở dữ liệu
-            try {
-                $conn = new PDO("mysql:host=$servername;dbname=$dbname", $username, $password);
-                $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            // Di chuyển file vào thư mục đích
+            if (move_uploaded_file($_FILES['image']['tmp_name'], $destinationPath)) {
+                $thumbnailTitle = "Thumbnail sản phẩm " . $id;
+                $path_image_thumbnail = '/AVCShop/public/images/products/' . $imageFileName;
 
-                $stmt = $conn->prepare("INSERT INTO products (id, path_image, title, price, type, brand, manufacture, material, description) VALUES (:id, :path_image, :title, :price, :type, :brand, :manufacture, :material, :description)");
-                $stmt->bindParam(':id', $id);
-                $stmt->bindParam(':path_image', $imageFileName);
-                $stmt->bindParam(':title', $title);
-                $stmt->bindParam(':price', $price);
-                $stmt->bindParam(':type', $type);
-                $stmt->bindParam(':brand', $brand);
-                $stmt->bindParam(':manufacture', $manufacture);
-                $stmt->bindParam(':material', $material);
-                $stmt->bindParam(':description', $description);
+                // Lưu vào bảng thumbnails
+                $stmt = $conn->prepare("INSERT INTO thumbnails (id, product_id, title, path_image) VALUES (:id, :product_id, :title, :path_image)");
+                $stmt->bindParam(':id', $idThumbnail);
+                $stmt->bindParam(':product_id', $id);
+                $stmt->bindParam(':title', $thumbnailTitle);
+                $stmt->bindParam(':path_image', $path_image_thumbnail);
                 $stmt->execute();
-
-                echo '<script>alert("Thêm sản phẩm thành công!")</script>';
-            } catch (PDOException $e) {
-                echo '<script>console.log("Lỗi: ' . $e->getMessage() . '")</script>';
-            } finally {
-                echo '<script>window.location.href = "/AVCShop/src/add_product.php"</script>';
+            } else {
+                $response['message'] = 'Không thể tải lên ảnh thumbnail.';
+                echo json_encode($response);
+                exit;
             }
-
-            $conn = null;
-        } else {
-            echo '<script>alert("Có lỗi khi lưu hình ảnh!")</script>';
-            echo '<script>window.location.href = "/AVCShop/src/add_product.php"</script>';
         }
+
+        // Xử lý ảnh chi tiết (new_images)
+        if (isset($_FILES['new_images']) && count($_FILES['new_images']['name']) > 0) {
+            for ($i = 0; $i < count($_FILES['new_images']['name']); $i++) {
+                $imageTmpName = $_FILES['new_images']['tmp_name'][$i];
+                $imageName = $_FILES['new_images']['name'][$i];
+                $imageError = $_FILES['new_images']['error'][$i];
+
+                if ($imageError === UPLOAD_ERR_OK) {
+                    // Tạo ID cho ảnh chi tiết
+                    $idImage = strtoupper(uniqid());
+
+                    // Đổi tên file ảnh
+                    $newImageName = 'image_' . $idImage . '.jpg';
+                    $destinationPath = $uploadDir . DIRECTORY_SEPARATOR . $newImageName;
+
+                    // Di chuyển ảnh vào thư mục đích
+                    if (move_uploaded_file($imageTmpName, $destinationPath)) {
+                        $imagelTitle = "Ảnh sản phẩm " . $id;
+                        $path_image_images = '/AVCShop/public/images/products/' . $newImageName;
+
+                        // Lưu vào bảng images
+                        $stmt = $conn->prepare("INSERT INTO images (id, product_id, title, path_image) VALUES (:id, :product_id, :title, :path_image)");
+                        $stmt->bindParam(':id', $idImage);
+                        $stmt->bindParam(':product_id', $id);
+                        $stmt->bindParam(':title', $imagelTitle);
+                        $stmt->bindParam(':path_image', $path_image_images);
+                        $stmt->execute();
+                    } else {
+                        $response['message'] = 'Không thể tải lên ảnh chi tiết.';
+                        echo json_encode($response);
+                        exit;
+                    }
+                }
+            }
+        }
+
+        $response['success'] = true;
+        $response['message'] = 'Thêm sản phẩm mới thành công!';
+        $response['product_id'] = $id;
+    } catch (PDOException $e) {
+        $response['message'] = 'Lỗi: ' . $e->getMessage();
     }
+
+    // Kết nối CSDL xong
+    $conn = null;
+
+    // Trả về phản hồi
+    echo json_encode($response);
+    exit;
 }
 ?>
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <?php include '../inc/head.php'; ?>
+    <link rel="stylesheet" href="../public/css/add_product.css" />
+    <title>Thêm Sản Phẩm</title>
+</head>
 
 <body>
     <?php
@@ -98,11 +146,22 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 <form id="add-product" action="/AVCShop/src/add_product.php" method="POST" enctype="multipart/form-data">
                     <fieldset class="info-product">
                         <legend>Thông tin sản phẩm</legend>
+                        <!-- Ảnh đại diện -->
                         <div class="form-group-image">
                             <label for="image" class="form-label col-sm-2">Ảnh<sup>*</sup>:</label>
                             <div class="col-sm-10 form-image">
                                 <img id="image-preview" src="#" alt="Preview" style="display: none; max-width: 150px; max-height: 150px;">
                                 <input type="file" id="image" name="image" accept=".png, .jpg, .jpeg, .webp" required autocomplete="one-time-code" onchange="change_image(event)">
+                            </div>
+                        </div>
+                        <!-- Danh sách ảnh chi tiết -->
+                        <div class="form-group-image">
+                            <label for="image" class="form-label col-sm-2">Ảnh chi tiết<sup>*</sup>:</label>
+                            <div class="col-sm-10">
+                                <div class="image-list-scrollable" id="image-list">
+                                </div>
+                                <label for="new-images">Thêm hình ảnh mới:</label>
+                                <input type="file" id="new-images" multiple accept=".png, .jpg, .jpeg, .webp" required onchange="previewImages(event)">
                             </div>
                         </div>
                         <div class="form-group">
@@ -132,7 +191,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                         <div class="form-group">
                             <label for="brand" class="form-label col-sm-2">Thương hiệu<sup>*</sup>:</label>
                             <div class="col-sm-10">
-                                <input type="text" id="brand" class="form-control" name="brand" placeholder="Thương hiệu" value="Thời trang Tuấn Vũ" autocomplete="one-time-code">
+                                <input type="text" id="brand" class="form-control" name="brand" placeholder="Thương hiệu" value="<?php echo AppConstants::BRAND_NAME; ?>" autocomplete="one-time-code">
                             </div>
                         </div>
                         <div class="form-group">
@@ -209,6 +268,99 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             imagePreview.style.display = 'none';
         }
     }
+    
+    let new_images = [];     // Mảng ảnh mới
+
+    function previewImages(event) {
+        const files = event.target.files;
+
+        for (let i = 0; i < files.length; i++) {
+            const file = files[i];
+            const reader = new FileReader();
+
+            reader.onload = function (e) {
+                // Tạo phần tử ảnh mới để hiển thị
+                const imageItem = document.createElement('div');
+                imageItem.classList.add('image-item');
+
+                const img = document.createElement('img');
+                img.src = e.target.result;
+                img.classList.add('image-thumbnail');
+                img.removeAttribute('data-id'); // Ảnh mới không có ID
+
+                // Tạo ID duy nhất cho ảnh mới
+                const imageId = `new_image_${new_images.length}`;
+
+                // Thêm nút xóa
+                const removeButton = document.createElement('button');
+                removeButton.type = 'button';
+                removeButton.classList.add('remove-image-btn');
+                removeButton.textContent = '×';
+                removeButton.onclick = function () {
+                    removeImage(removeButton, imageId); // Gửi imageId vào hàm removeImage
+                };
+
+                // Thêm ảnh vào DOM
+                imageItem.appendChild(img);
+                imageItem.appendChild(removeButton);
+                document.getElementById('image-list').appendChild(imageItem);
+
+                // Thêm ảnh vào mảng new_images
+                new_images.push({ id: imageId, file: file, src: e.target.result });
+            };
+
+            reader.readAsDataURL(file); // Đọc ảnh
+        }
+    }
+
+    function removeImage(button, imageId) {
+        const imageItem = button.closest('.image-item');
+        const imgElement = imageItem.querySelector('img');
+
+        new_images = new_images.filter(image => image.id !== imageId); // Xoá ảnh khỏi new_images
+
+        // Xoá ảnh khỏi DOM
+        imageItem.remove();
+    }
+
+    document.getElementById('add-product').addEventListener('submit', function (event) {
+        event.preventDefault(); // Ngừng submit form mặc định để xử lý thêm
+
+        const formData = new FormData(this); // Lấy tất cả dữ liệu form vào FormData
+
+        // Gửi ảnh mới lên server
+        new_images.forEach(image => {
+            formData.append('new_images[]', image.file); // Gửi mỗi ảnh dưới dạng 'new_images[]'
+        });
+
+        // Thực hiện gửi form dữ liệu tới server
+        fetch('/AVCShop/src/add_product.php?product_id=' + '<?php echo $product_id ?>', {
+            method: 'POST',
+            body: formData
+        })
+        .then((response) => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok ' + response.statusText);
+            }
+            return response.json(); // Chuyển phản hồi sang JSON
+        })
+        .then((data) => {
+            if (data.success) {
+                alert(data.message); // Hiển thị thông báo thành công
+                // Điều hướng về trang xem chi tiết sản phẩm
+
+                // Lấy prouct_id từ response
+                var productId = data['product_id']
+                window.location.href = "/AVCShop/src/detail.php?product_id=" + productId;
+            } else {
+                alert('Lỗi: ' + data.message); // Hiển thị thông báo lỗi
+            }
+        })
+        .catch((error) => {
+            console.error('Fetch error:', error); // Log lỗi mạng
+            alert('Đã xảy ra lỗi trong khi cập nhật sản phẩm.');
+        });
+    });
 
     // Ngăn chặn sự kiện cuộn chuột trên input type="number"
     document.getElementById('price').addEventListener('wheel', function(event) {

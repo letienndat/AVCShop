@@ -3,6 +3,7 @@ $root = $_SERVER['DOCUMENT_ROOT'];
 require_once $root . '/AVCShop/database/info_connect_db.php';
 require_once $root . '/AVCShop/model/product.php';
 require_once $root . '/AVCShop/model/image.php';
+require_once $root . '/AVCShop/local/const.php';
 
 try {
     // Kết nối đến cơ sở dữ liệu MySQL
@@ -56,7 +57,7 @@ try {
 
                 // Tạo sản phẩm mới
                 $productId = strtoupper(uniqid()); // Tạo ID duy nhất cho sản phẩm
-                $product = new Product($productId, "Converse Chuck Taylor All Star Festival Smoothie", random_int(800, 2000) * 1000, $type, "Converse", "Việt Nam", "Textile", "Thiết kế cổ cao cá tính giúp bảo vệ an toàn vùng mắt cá chân");
+                $product = new Product($productId, "Converse Chuck Taylor All Star Festival Smoothie", random_int(800, 2000) * 1000, $type, AppConstants::BRAND_NAME, "Việt Nam", "Textile", "Thiết kế cổ cao cá tính giúp bảo vệ an toàn vùng mắt cá chân");
                 array_push($products, $product);
     
                 // Chuẩn bị truy vấn INSERT cho bảng `products`
@@ -88,7 +89,7 @@ try {
                             // Lưu thumbnail vào bảng `thumbnails` (chỉ lưu lần đầu)
                             if (!$thumbnailSaved) {
                                 // Lưu thumbnail
-                                $thumbnailTitle = "Thumbnail sản phẩm" . $productId;
+                                $thumbnailTitle = "Thumbnail sản phẩm " . $productId;
                                 $thumbnailStmt = $conn->prepare("INSERT INTO thumbnails (id, product_id, title, path_image) VALUES (?, ?, ?, ?)");
                                 $thumbnailStmt->bind_param('ssss', $thumbnailId, $productId, $thumbnailTitle, $path_image_thumbnail);
                                 $thumbnailStmt->execute();
