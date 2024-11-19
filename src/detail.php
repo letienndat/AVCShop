@@ -13,50 +13,64 @@
     }
     ?>
 
+    <?php
+    $type = $_GET['type'];
+
+    $root = $_SERVER['DOCUMENT_ROOT'];
+    require_once $root . '/AVCShop/database/info_connect_db.php';
+    require_once $root . '/AVCShop/local/data.php';
+
+    try {
+        // Kết nối đến cơ sở dữ liệu MySQL
+        $conn = new PDO("mysql:host=$servername;dbname=$dbname", $username, $password);
+        $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+        // Truy vấn để lấy thumbnail và tất cả ảnh chi tiết của sản phẩm
+        $stmt = $conn->prepare("SELECT p.title, p.id, p.material, p.brand, p.manufacture, p.price, p.description, t.path_image AS thumbnail_path, i.path_image AS image_path
+                                FROM products p
+                                LEFT JOIN thumbnails t ON p.id = t.product_id
+                                LEFT JOIN images i ON p.id = i.product_id
+                                WHERE p.id = :product_id");
+        $stmt->bindParam(':product_id', $product_id, PDO::PARAM_STR);
+        $stmt->execute();
+        $product = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        // Khởi tạo mảng $images chứa tất cả các ảnh
+        $images = array();
+
+        // Thêm ảnh thumbnail vào mảng $images
+        if (!empty($product['thumbnail_path'])) {
+        $images[] = $product['thumbnail_path'];
+        }
+
+        // Thêm các ảnh chi tiết vào mảng $images (nếu có)
+        $stmtImages = $conn->prepare("SELECT path_image FROM images WHERE product_id = :product_id");
+        $stmtImages->bindParam(':product_id', $product_id, PDO::PARAM_STR);
+        $stmtImages->execute();
+        $additionalImages = $stmtImages->fetchAll(PDO::FETCH_ASSOC);
+
+        // Lặp qua các ảnh chi tiết và thêm vào mảng $images
+        foreach ($additionalImages as $image) {
+        $images[] = $image['path_image'];
+        }
+    } catch (PDOException $e) {
+        echo '<script>console.log("Lỗi: ' . $e->getMessage() . '")</script>';
+    }
+    ?>
+
     <title>
         <?php
-        $type = $_GET['type'];
-
-        $root = $_SERVER['DOCUMENT_ROOT'];
-        require_once $root . '/AVCShop/database/info_connect_db.php';
-        require_once $root . '/AVCShop/local/data.php';
-
-        try {
             // Kết nối đến cơ sở dữ liệu MySQL
             $conn = new PDO("mysql:host=$servername;dbname=$dbname", $username, $password);
             $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-            // Truy vấn để lấy thumbnail và tất cả ảnh chi tiết của sản phẩm
-            $stmt = $conn->prepare("SELECT p.title, p.id, p.material, p.brand, p.manufacture, p.price, p.description, t.path_image AS thumbnail_path, i.path_image AS image_path
-                                    FROM products p
-                                    LEFT JOIN thumbnails t ON p.id = t.product_id
-                                    LEFT JOIN images i ON p.id = i.product_id
-                                    WHERE p.id = :product_id");
-            $stmt->bindParam(':product_id', $product_id, PDO::PARAM_STR);
+            // Truy vấn lấy giày từ bảng "products"
+            $stmt = $conn->query("SELECT title FROM products" . " WHERE id = '" . $product_id . "'");
             $stmt->execute();
-            $product = $stmt->fetch(PDO::FETCH_ASSOC);
 
-            // Khởi tạo mảng $images chứa tất cả các ảnh
-            $images = array();
+            $title = $stmt->fetch(PDO::FETCH_ASSOC);
 
-            // Thêm ảnh thumbnail vào mảng $images
-            if (!empty($product['thumbnail_path'])) {
-            $images[] = $product['thumbnail_path'];
-            }
-
-            // Thêm các ảnh chi tiết vào mảng $images (nếu có)
-            $stmtImages = $conn->prepare("SELECT path_image FROM images WHERE product_id = :product_id");
-            $stmtImages->bindParam(':product_id', $product_id, PDO::PARAM_STR);
-            $stmtImages->execute();
-            $additionalImages = $stmtImages->fetchAll(PDO::FETCH_ASSOC);
-
-            // Lặp qua các ảnh chi tiết và thêm vào mảng $images
-            foreach ($additionalImages as $image) {
-            $images[] = $image['path_image'];
-            }
-        } catch (PDOException $e) {
-            echo '<script>console.log("Lỗi: ' . $e->getMessage() . '")</script>';
-        }
+            echo $title['title'];
         ?>
     </title>
 </head>
