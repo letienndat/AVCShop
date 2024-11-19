@@ -137,6 +137,12 @@
                         <div id="mainImageContainer" class="container-main-image">
                             <img id="mainImage" src="" alt="Main Image" class="main-image">
                         </div>
+                        <!-- Phần overlay và ảnh full-screen -->
+                        <div id="fullscreenOverlay" class="fullscreen-overlay">
+                            <div class="fullscreen-container">
+                                <img id="fullscreenImage" class="fullscreen-image" src="" alt="Fullscreen Image">
+                            </div>
+                        </div>
                     </div>
                     </div>
                 </div>
@@ -409,6 +415,33 @@
     const delete_product = (id) => {
         window.location.href = `/AVCShop/service/delete_product.php?product_id=${id}`
     }
+
+    document.addEventListener("DOMContentLoaded", function () {
+        const productImage = document.getElementById("mainImage"); // Ảnh trong trang detail
+        const fullscreenOverlay = document.getElementById("fullscreenOverlay"); // Overlay
+        const fullscreenImage = document.getElementById("fullscreenImage"); // Ảnh full-screen
+
+        // Bấm vào ảnh để hiển thị full-screen
+        productImage.addEventListener("click", function () {
+            // Đặt src của ảnh full-screen giống với ảnh gốc
+            fullscreenImage.src = productImage.src;
+            // Tính toán chiều cao màn hình hiện tại
+            const windowHeight = window.innerHeight;
+
+            // Gán chiều cao ảnh sao cho không vượt quá chiều cao màn hình
+            fullscreenImage.style.maxHeight = windowHeight + 'px';
+
+            fullscreenOverlay.style.display = 'flex'; // Hiển thị overlay
+        });
+
+        // Bấm vào overlay (không chứa ảnh) để đóng full-screen
+        fullscreenOverlay.addEventListener("click", function (event) {
+            // Kiểm tra nếu phần tử click không phải ảnh
+            if (event.target !== fullscreenImage) {
+                fullscreenOverlay.style.display = "none"; // Ẩn overlay
+            }
+        });
+    });
 </script>
 
 <script src="/AVCShop/public/js/padding-top-body.js"></script>

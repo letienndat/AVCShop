@@ -1,5 +1,5 @@
-<header>
-    <div class="header-top">
+<header id="header">
+    <div class="header-top" id="header-top">
         <div class="row header-top-sub">
             <div class="hotline">
                 Hotline:&nbsp;<a class="a-hotline" href="tel:18000080">1800.0080</a>
@@ -55,7 +55,7 @@
 
         </div>
     </div>
-    <div class="header-center">
+    <div class="header-center" id="header-center">
         <div class="container">
             <div class="row">
                 <div class="col-sm-3">
@@ -98,7 +98,7 @@
             <span class="span-notify-top">Miễn phí vận chuyển toàn quốc</span>
         </div>
     </div>
-    <div class="header-botton">
+    <div class="header-bottom" id="header-bottom">
         <div class="container ">
             <div class="row">
                 <div class="col-sm-12">

@@ -151,6 +151,10 @@ body {
   padding: 10px;
   text-align: center;
   transition: ease all 0.2s;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
 }
 
 .product:hover {
@@ -158,22 +162,28 @@ body {
   transform: translateY(-5px); /* Dịch phần tử lên 5px khi hover */
 }
 
+.product .top-block {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .product .top-block a {
   display: flex;
   align-items: center;
-  height: 262.66px;
 }
 
 .product .image-product {
   max-width: 100%;
-  height: auto;
+  min-height: 260px;
+  max-height: 300px;
 }
 
-.botton-block > h4 {
+.bottom-block > h4 {
   min-height: 40px;
 }
 
-.botton-block > h4 > a {
+.bottom-block > h4 > a {
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-size: 14px;
   line-height: 1.4;
@@ -184,12 +194,12 @@ body {
   text-overflow: ellipsis;
 }
 
-.botton-block > h4 > a:hover {
+.bottom-block > h4 > a:hover {
   cursor: pointer;
   color: #f8c052 !important;
 }
 
-.botton-block > div {
+.bottom-block > div {
   font-family: "Roboto", sans-serif;
   font-size: 12px;
   line-height: 17px;

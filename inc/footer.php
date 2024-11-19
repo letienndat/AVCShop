@@ -43,7 +43,7 @@ require_once $root . '/AVCShop/local/const.php';
             </div>
         </div>
     </div>
-    <div class="footer-botton">
+    <div class="footer-bottom">
         <span>
             ©<?php
                 echo AppConstants::NAME_PROJECT . " - " . AppConstants::FULL_NAME_OWNER;

@@ -395,3 +395,33 @@
 .container-main-image > .main-image {
   width: 100%;
 }
+
+.container-main-image > .main-image:hover {
+  cursor: pointer;
+}
+
+/* Kiểu dáng cho overlay full-screen */
+.fullscreen-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.8); /* Màu nền tối với độ mờ */
+  display: none; /* Ẩn mặc định */
+  justify-content: center;
+  align-items: center;
+  z-index: 9999; /* Đảm bảo overlay nằm trên tất cả các phần tử */
+}
+
+/* Kiểu dáng cho ảnh full-screen */
+.fullscreen-container {
+  max-width: 95%;
+  max-height: 95%;
+  overflow: hidden;
+}
+
+.fullscreen-image {
+  height: 100%; /* Đặt chiều cao là 100% của container */
+  object-fit: contain; /* Đảm bảo ảnh hiển thị đúng tỉ lệ */
+}

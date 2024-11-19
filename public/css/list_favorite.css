@@ -153,11 +153,11 @@ body {
   height: auto;
 }
 
-.botton-block > h4 {
+.bottom-block > h4 {
   height: 40px;
 }
 
-.botton-block > h4 > a {
+.bottom-block > h4 > a {
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-size: 14px;
   line-height: 1.4;
@@ -168,12 +168,12 @@ body {
   text-overflow: ellipsis;
 }
 
-.botton-block > h4 > a:hover {
+.bottom-block > h4 > a:hover {
   cursor: pointer;
   color: #f8c052 !important;
 }
 
-.botton-block > div {
+.bottom-block > div {
   font-family: "Roboto", sans-serif;
   font-size: 12px;
   line-height: 17px;

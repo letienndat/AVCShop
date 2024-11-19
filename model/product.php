@@ -9,7 +9,16 @@ class Product {
     public $material;
     public $description;
 
-    public function __construct($id, $title, $price, $type, $brand, $manufacture, $material, $description) {
+    public function __construct(
+        $title, // Tham số bắt buộc
+        $type, 
+        $brand, 
+        $manufacture, 
+        $material, 
+        $description, 
+        $id = null, // Tham số tùy chọn
+        $price = null
+    ) {
         $this->id = $id;
         $this->title = $title;
         $this->price = $price;

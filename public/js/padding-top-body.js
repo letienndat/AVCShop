@@ -2,7 +2,7 @@
 function adjustBodyPadding() {
     const header = document.querySelector('header');
     const body = document.querySelector('body');
-    
+
     // Lấy chiều cao của header
     const headerHeight = header.offsetHeight;
 

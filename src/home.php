@@ -181,7 +181,7 @@ function getTitlePage($type, $search)
                                     <img class="image-product" src=<?php echo $product['thumbnail_path'] ?> alt="<?php echo $product['title'] ?>">
                                 </a>
                             </div>
-                            <div class="botton-block">
+                            <div class="bottom-block">
                                 <h4>
                                     <a href="
                                     <?php

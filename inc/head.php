@@ -2,8 +2,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="stylesheet" href="../public/css/header.css">
 <link rel="stylesheet" href="../public/css/footer.css">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-<link href="https://fonts.googleapis.com/css?family=Montserrat:400,600,600i,900,900i" rel="stylesheet">
+<link rel="stylesheet" href="../public/css/fonts.css">
+<link rel="stylesheet" href="../public/fontawesome-6.7.0/css/all.min.css">
 <link rel="icon" href="/AVCShop/public/images/web/logo.jpg">
 <script src="/AVCShop/public/js/load_page.js"></script>
 <?php
