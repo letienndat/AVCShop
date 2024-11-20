@@ -343,8 +343,8 @@
 
 .thumbnail-images img {
   cursor: pointer;
-  width: 80px; /* Chiều rộng ảnh nhỏ */
-  height: 80px; /* Chiều cao ảnh nhỏ */
+  width: 70px; /* Chiều rộng ảnh nhỏ */
+  height: auto; /* Chiều cao ảnh nhỏ */
   object-fit: cover;
   opacity: 0.6; /* Làm mờ ảnh không chọn */
   box-sizing: border-box;
