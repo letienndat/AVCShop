@@ -150,6 +150,6 @@ if (isset($first_name) && isset($last_name) && isset($username_) && isset($passw
     }
 </script>
 
-<script src="/AVCShop/public/js/padding-top-body.js"></script>
+<script src="/AVCShop/public/js/pin_header.js"></script>
 
 </html>

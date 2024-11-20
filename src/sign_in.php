@@ -125,6 +125,6 @@ if (isset($username_) && isset($password_)) {
     }
 </script>
 
-<script src="/AVCShop/public/js/padding-top-body.js"></script>
+<script src="/AVCShop/public/js/pin_header.js"></script>
 
 </html>

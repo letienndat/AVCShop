@@ -156,6 +156,6 @@ if (isset($old_password) && isset($new_password)) {
     }
 </script>
 
-<script src="/AVCShop/public/js/padding-top-body.js"></script>
+<script src="/AVCShop/public/js/pin_header.js"></script>
 
 </html>

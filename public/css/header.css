@@ -11,6 +11,7 @@ body {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+  position: relative;
 }
 
 a {
@@ -29,9 +30,9 @@ header {
 }
 
 header {
-  position: fixed;
+  /* position: fixed;
   top: 0;
-  left: 0;
+  left: 0; */
   width: 100%;
   z-index: 1000;  /* Đảm bảo header nằm trên các phần tử khác */
   background-color: #fff;  /* Màu nền cho header */
@@ -225,7 +226,6 @@ header {
 .header-bottom {
   width: 100%;
   height: auto;
-  margin-bottom: 9px;
   background-color: black;
 }
 
@@ -352,4 +352,11 @@ ul {
 
 .fa-search:hover {
   color: red;
+}
+
+#header-bottom {
+  /* position: fixed; */
+  top: 0;
+  left: 0;
+  right: 0;
 }

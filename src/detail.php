@@ -258,7 +258,12 @@
     function changeMainImage(imagePath, imgElement) {
         document.getElementById('mainImage').src = imagePath;
         let allThumbnails = document.querySelectorAll('.small-image');
-        allThumbnails.forEach(img => img.classList.remove('selected-thumbnail'));
+        allThumbnails.forEach((img, index) => {
+            img.classList.remove('selected-thumbnail')
+            if (img === imgElement) {
+                selectedIndex = index
+            }
+        });
         imgElement.classList.add('selected-thumbnail');
     }
 
@@ -444,6 +449,6 @@
     });
 </script>
 
-<script src="/AVCShop/public/js/padding-top-body.js"></script>
+<script src="/AVCShop/public/js/pin_header.js"></script>
 
 </html>

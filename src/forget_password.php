@@ -63,6 +63,6 @@ if (isset($username_)) {
     ?>
 </body>
 
-<script src="/AVCShop/public/js/padding-top-body.js"></script>
+<script src="/AVCShop/public/js/pin_header.js"></script>
 
 </html>
