@@ -153,7 +153,15 @@ function getTitlePage($type, $search)
                     $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
                     // Lấy tổng số sản phẩm để tính số trang
-                    $totalStmt = $conn->query("SELECT COUNT(*) FROM products" . (isset($type) ? (" WHERE type = '" . $type . "'") : ""));
+                    if (!isset($search)) {
+                        $totalStmt = $conn->query("SELECT COUNT(*) FROM products" . (isset($type) ? (" WHERE type = '" . $type . "'") : ""));
+                    } else {
+                        $totalStmt = $conn->prepare("SELECT COUNT(*) FROM products WHERE title LIKE :keyword OR id LIKE :id" . (isset($type) ? (" AND type = '" . $type . "'") : ""));
+                        $search = trim($search);
+                        $totalStmt->bindValue(':keyword', "%$search%", PDO::PARAM_STR);
+                        $totalStmt->bindValue(':id', "%$search%", PDO::PARAM_STR);
+                        $totalStmt->execute();
+                    }
                     $totalRows = $totalStmt->fetchColumn();
                     $totalPages = ceil($totalRows / $perPage);
                 ?>
