@@ -143,7 +143,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             <div class="content">
                 <h1 class="title-add-product">Thêm sản phẩm</h1>
                 <p><strong>Lưu ý:</strong> Các mục dấu <strong>màu đỏ</strong> không được bỏ trống & phải điền đầy đủ, chính xác</p>
-                <form id="add-product" action="/AVCShop/src/add_product.php" method="POST" enctype="multipart/form-data">
+                <form id="add-product" onsubmit="sanitizePrice()" action="/AVCShop/src/add_product.php" method="POST" enctype="multipart/form-data">
                     <fieldset class="info-product">
                         <legend>Thông tin sản phẩm</legend>
                         <!-- Ảnh đại diện -->
@@ -173,7 +173,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                         <div class="form-group">
                             <label for="price" class="form-label col-sm-2">Giá<sup>*</sup>:</label>
                             <div class="col-sm-10">
-                                <input type="number" min="0" value="0" id="price" class="form-control" name="price" placeholder="Giá" autocomplete="one-time-code" oninput="input_price(event)">
+                                <input type="text" value="0" id="price" class="form-control" name="price" placeholder="Giá" autocomplete="one-time-code" oninput="input_price(event)">
                             </div>
                         </div>
                         <div class="form-group">
@@ -246,11 +246,32 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     }
 
     const input_price = (event) => {
-        const inputValue = event.target.value;
+        let inputValue = event.target.value;
 
-        // Sử dụng biểu thức chính quy để chỉ giữ lại các ký tự số
-        event.target.value = inputValue.replaceAll(/[^\d]/g, '');
+        // Loại bỏ tất cả ký tự không phải là số và dấu phân cách thập phân
+        inputValue = inputValue.replace(/[^0-9,]/g, '');
+
+        // Tách phần nguyên và phần thập phân (nếu có)
+        let [integerPart, decimalPart] = inputValue.split(',');
+
+        // Thêm dấu phân cách phần nghìn (dấu ".") vào phần nguyên
+        integerPart = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+
+        // Cập nhật lại giá trị trong input (phần thập phân vẫn giữ nguyên nếu có)
+        event.target.value = decimalPart ? `${integerPart},${decimalPart}` : integerPart;
     }
+
+    // Trước khi gửi form, loại bỏ dấu phân cách nghìn và gửi giá trị số thuần túy
+    const sanitizePrice = () => {
+        const priceInput = document.getElementById('price');
+        let priceValue = priceInput.value;
+
+        // Loại bỏ dấu phân cách phần nghìn (dấu ".") và chỉ giữ lại số và dấu phân cách thập phân
+        priceValue = priceValue.replace(/\./g, '').replace(',', '.'); // Thay dấu ',' thành dấu '.' nếu có
+
+        // Gán lại giá trị đã làm sạch
+        priceInput.value = priceValue;
+    };
 
     const imagePreview = document.getElementById('image-preview');
 

@@ -76,6 +76,8 @@
 </head>
 
 <body>
+    <span id="copy-alert" class="copy-alert">Đã sao chép</span>
+
     <?php
     include '../inc/header.php';
     ?>
@@ -155,6 +157,7 @@
                         <div class="col-sm-4">
                             <div class="id-product">
                                 <span><?php echo "ID: " . $product['id'] ?></span>
+                                <i class="fa-regular fa-copy" onclick="copyText(this, '<?php echo $product['id'] ?>')"></i>
                             </div>
                             <div class="metarial-product">
                                 <span><?php echo "Chất liệu: " . $product['material'] ?></span>
@@ -169,7 +172,7 @@
                         <div class="col-sm-8">
                             <span class="price">
                                 <span class="title-price">Giá: </span>
-                                <span class="price-real"><?php echo number_format($product['price'], 0, ",", ".") . " đ" ?></span>
+                                <span class="price-real"><?php echo number_format($product['price'], 0, ",", ".") . " VNĐ" ?></span>
                             </span>
                             <span class="notify">
                                 MIỄN PHÍ VẬN CHUYỂN TOÀN QUỐC KHI ĐẶT HÀNG ONLINE
@@ -177,7 +180,7 @@
                         </div>
                     </div>
                     <div class="desc-content-product">
-                        <?php echo $product['description'] ?>
+                        <?php echo str_replace("\n", "<br>", $product['description']) ?>
                     </div>
                     <div class="box-option">
                         <div class="quantity-box">
@@ -420,6 +423,33 @@
     const delete_product = (id) => {
         window.location.href = `/AVCShop/service/delete_product.php?product_id=${id}`
     }
+
+    const copyText = (element, text) => {
+        element.classList.replace('fa-regular', 'fa-solid');
+        
+        // Sao chép nội dung vào clipboard
+        navigator.clipboard.writeText(text)
+            .then(() => {
+                setTimeout(() => {
+                    element.classList.replace('fa-solid', 'fa-regular');
+                }, 1000)
+
+                // Hiển thị thông báo "Đã sao chép"
+                const alertBox = document.getElementById('copy-alert');
+                alertBox.classList.add('show');
+
+                // Ẩn thông báo sau 2 giây
+                setTimeout(() => {
+                    alertBox.classList.remove('show');
+                }, 2000);
+            })
+            .catch(err => {
+                console.error('Không thể sao chép: ', err);
+            });
+
+        
+    }
+
 
     document.addEventListener("DOMContentLoaded", function () {
         const productImage = document.getElementById("mainImage"); // Ảnh trong trang detail

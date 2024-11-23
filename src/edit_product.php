@@ -139,7 +139,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     }
 
     // Xử lý ảnh đã xóa
-    if (isset($_POST['removed_images'])) {
+    if (isset($_POST['removed_images']) && is_array($_POST['removed_images'])) {
         // Kiểm tra và chuyển đổi chuỗi thành mảng nếu dữ liệu gửi về là chuỗi
         $removedImages = explode(',', $_POST['removed_images'][0]);
     
@@ -189,7 +189,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 }
             } else {
                 $response['success'] = false;
-                $response['message'] = "Ảnh không tồn tại trong cơ sở dữ liệu.";
+                $response['message'] = json_encode($removedImages) . " - " . "Ảnh không tồn tại trong cơ sở dữ liệu.";
 
                 echo json_encode($response);
                 exit;
@@ -308,7 +308,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             <div class="content">
                 <h1 class="title-add-product">Chỉnh sửa sản phẩm</h1>
                 <p><strong>Lưu ý:</strong> Các mục dấu <strong>màu đỏ</strong> không được bỏ trống & phải điền đầy đủ, chính xác</p>
-                <form id="edit-product" action="<?php echo '/AVCShop/src/edit_product.php?product_id=' . $product_id ?>" method="POST" enctype="multipart/form-data">
+                <form id="edit-product" onsubmit="sanitizePrice()" action="<?php echo '/AVCShop/src/edit_product.php?product_id=' . $product_id ?>" method="POST" enctype="multipart/form-data">
                     <fieldset class="info-product">
                         <legend>Thông tin sản phẩm</legend>
                         <div class="form-group">
@@ -357,7 +357,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                         <div class="form-group">
                             <label for="price" class="form-label col-sm-2">Giá<sup>*</sup>:</label>
                             <div class="col-sm-10">
-                                <input type="number" min="0" id="price" class="form-control" value="<?php echo $price ?>" name="price" placeholder="Giá" autocomplete="one-time-code" oninput="input_price(event)">
+                                <input type="text" id="price" class="form-control" value="<?php echo number_format($price, 0, ",", ".") ?>" name="price" placeholder="Giá" autocomplete="one-time-code" oninput="input_price(event)">
                             </div>
                         </div>
                         <div class="form-group">
@@ -393,7 +393,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                         <div class="form-group-area">
                             <label for="description" class="form-label col-sm-2">Mô tả<sup>*</sup>:</label>
                             <div class="col-sm-10">
-                                <textarea class="form-control-area" name="description" id="description" cols="30" rows="10" placeholder="Mô tả"><?php echo $description ?></textarea>
+                                <textarea class="form-control-area" name="description" id="description" cols="30" rows="10" placeholder="Mô tả"><?php echo str_replace("<br>", "\n", $description) ?></textarea>
                             </div>
                         </div>
                     </fieldset>
@@ -430,11 +430,32 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     }
 
     const input_price = (event) => {
-        const inputValue = event.target.value;
+        let inputValue = event.target.value;
 
-        // Sử dụng biểu thức chính quy để chỉ giữ lại các ký tự số
-        event.target.value = inputValue.replaceAll(/[^\d]/g, '');
+        // Loại bỏ tất cả ký tự không phải là số và dấu phân cách thập phân
+        inputValue = inputValue.replace(/[^0-9,]/g, '');
+
+        // Tách phần nguyên và phần thập phân (nếu có)
+        let [integerPart, decimalPart] = inputValue.split(',');
+
+        // Thêm dấu phân cách phần nghìn (dấu ".") vào phần nguyên
+        integerPart = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+
+        // Cập nhật lại giá trị trong input (phần thập phân vẫn giữ nguyên nếu có)
+        event.target.value = decimalPart ? `${integerPart},${decimalPart}` : integerPart;
     }
+
+    // Trước khi gửi form, loại bỏ dấu phân cách nghìn và gửi giá trị số thuần túy
+    const sanitizePrice = () => {
+        const priceInput = document.getElementById('price');
+        let priceValue = priceInput.value;
+
+        // Loại bỏ dấu phân cách phần nghìn (dấu ".") và chỉ giữ lại số và dấu phân cách thập phân
+        priceValue = priceValue.replace(/\./g, '').replace(',', '.'); // Thay dấu ',' thành dấu '.' nếu có
+
+        // Gán lại giá trị đã làm sạch
+        priceInput.value = priceValue;
+    };
 
     const imagePreview = document.getElementById('image-preview');
 
@@ -528,7 +549,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         });
 
         // Gửi ảnh đã xóa
-        formData.append('removed_images[]', removed_images.join(',')); // Thêm mảng ảnh đã xóa vào form
+        if (removed_images.length > 0) { 
+            formData.append('removed_images[]', removed_images.join(',')); // Thêm mảng ảnh đã xóa vào form
+        }
 
         // Thực hiện gửi form dữ liệu tới server
         fetch('/AVCShop/src/edit_product.php?product_id=' + '<?php echo $product_id ?>', {

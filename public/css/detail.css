@@ -1,3 +1,7 @@
+body {
+  position: relative;
+}
+
 .container-content {
   width: 80%;
   margin: 20px auto 40px auto;
@@ -424,4 +428,42 @@
 .fullscreen-image {
   height: 100%; /* Đặt chiều cao là 100% của container */
   object-fit: contain; /* Đảm bảo ảnh hiển thị đúng tỉ lệ */
+}
+
+.id-product > i:hover {
+  cursor: pointer;
+}
+
+.copy-alert {
+  font-family: "Roboto", sans-serif;
+  display: none;
+  position: fixed;
+  top: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #989c99;
+  color: #fff;
+  padding: 5px 10px;
+  border-radius: 5px;
+  font-size: 14px;
+  white-space: nowrap;
+  margin-left: 10px;
+  z-index: 999999;
+}
+
+.copy-alert.show {
+  display: inline-block;
+  animation: fadeOut 2s forwards;
+}
+
+@keyframes fadeOut {
+  0% {
+    opacity: 1;
+  }
+  70% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
 }

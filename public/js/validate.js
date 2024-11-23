@@ -1,6 +1,5 @@
 const Validate = (obj) => {
   obj.rules.forEach((e) => {
-    console.log(e["status"]);
     if (!e["status"]) {
       Object.assign(document.querySelector(e.selector).style, {
         borderColor: "red",

@@ -221,8 +221,7 @@ legend {
 .image-item {
   position: relative;
   flex-shrink: 0;
-  width: 130px;
-  height: 130px;
+  max-width: 130px;
 }
 
 .image-thumbnail {
