@@ -89,7 +89,7 @@
 
                 <?php
                 if (isset($type)) {
-                    $title = "Tất cả";
+                    $title = "Tất cả sản phẩm";
                     switch ($type) {
                         case 'ao':
                             $title = "Áo";

@@ -72,7 +72,7 @@ function getTitlePage($type, $search)
                 <?php
                 } else {
                 ?>
-                    <li><a href="/AVCShop/src/home.php">Tất cả</a></li>
+                    <li><a href="/AVCShop/src/home.php">Tất cả sản phẩm</a></li>
                 <?php
                 }
                 ?>

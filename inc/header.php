@@ -103,7 +103,7 @@
             <div class="row">
                 <div class="col-sm-12">
                     <ul class="navbar">
-                        <li class="with-sub-menu"><a class="effect-navbar" href="/AVCShop/src/home.php"><strong class="strong-menu">TẤT CẢ</strong></a></li>
+                        <li class="with-sub-menu"><a class="effect-navbar" href="/AVCShop/src/home.php"><strong class="strong-menu">TRANG CHỦ</strong></a></li>
                         <li class="with-sub-menu"><a class="effect-navbar" href="/AVCShop/src/home.php?type=ao"><strong class="strong-menu">ÁO</strong></a></li>
                         <li class="with-sub-menu"><a class="effect-navbar" href="/AVCShop/src/home.php?type=quan"><strong class="strong-menu">QUẦN</strong></a></li>
                         <li class="with-sub-menu"><a class="effect-navbar" href="/AVCShop/src/home.php?type=dam-vay"><strong class="strong-menu">ĐẦM/VÁY</strong></a></li>
