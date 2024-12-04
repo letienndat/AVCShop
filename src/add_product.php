@@ -355,7 +355,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         });
 
         // Thực hiện gửi form dữ liệu tới server
-        fetch('/AVCShop/src/add_product.php?product_id=' + '<?php echo $product_id ?>', {
+        fetch('/AVCShop/src/add_product.php', {
             method: 'POST',
             body: formData
         })
