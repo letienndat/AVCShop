@@ -14,7 +14,7 @@
     ?>
 
     <?php
-    $type = $_GET['type'];
+    @$type = $_GET['type'];
 
     $root = $_SERVER['DOCUMENT_ROOT'];
     require_once $root . '/AVCShop/database/info_connect_db.php';

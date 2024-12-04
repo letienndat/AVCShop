@@ -19,9 +19,9 @@ if ($username_local === null) {
 
 <?php
 
-$first_name = $_POST['first-name'];
-$last_name = $_POST['last-name'];
-$username_ = $username_local;
+@$first_name = $_POST['first-name'];
+@$last_name = $_POST['last-name'];
+@$username_ = $username_local;
 
 if (isset($first_name) && isset($last_name)) {
     try {

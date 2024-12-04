@@ -16,10 +16,10 @@ include '../service/redirect.php';
 
 <?php
 
-$first_name = $_POST['first-name'];
-$last_name = $_POST['last-name'];
-$username_ = $_POST['username'];
-$password_ = $_POST['password'];
+@$first_name = $_POST['first-name'];
+@$last_name = $_POST['last-name'];
+@$username_ = $_POST['username'];
+@$password_ = $_POST['password'];
 
 if (isset($first_name) && isset($last_name) && isset($username_) && isset($password_)) {
     try {

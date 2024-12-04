@@ -19,9 +19,9 @@ if ($username_local === null) {
 
 <?php
 
-$username_ = $username_local;
-$old_password = $_POST['old-password'];
-$new_password = $_POST['new-password'];
+@$username_ = $username_local;
+@$old_password = $_POST['old-password'];
+@$new_password = $_POST['new-password'];
 
 if (isset($old_password) && isset($new_password)) {
     try {

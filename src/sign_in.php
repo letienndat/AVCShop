@@ -16,8 +16,8 @@ include '../service/redirect.php';
 
 <?php
 
-$username_ = $_POST['username'];
-$password_ = $_POST['password'];
+@$username_ = $_POST['username'];
+@$password_ = $_POST['password'];
 
 if (isset($username_) && isset($password_)) {
     try {

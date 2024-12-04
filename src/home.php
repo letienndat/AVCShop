@@ -6,9 +6,9 @@
     <link rel="stylesheet" href="../public/css/home.css">
     <title>
         <?php
-        $type = $_GET['type'];
-        $search = $_GET['search'];
-        $sort = $_GET['sort'];
+        @$type = $_GET['type'];
+        @$search = $_GET['search'];
+        @$sort = $_GET['sort'];
         echo getTitlePage($type, $search);
         ?>
     </title>

@@ -17,7 +17,7 @@ if ($username_local === null) {
     window.location.href="/AVCShop/src/sign_in.php"
     </script>';
 }
-$sort = $_GET['sort'];
+@$sort = $_GET['sort'];
 ?>
 
 <body>

@@ -7,5 +7,5 @@
 <link rel="icon" href="/AVCShop/public/images/web/logo.jpg">
 <script src="/AVCShop/public/js/load_page.js"></script>
 <?php
-    session_start();
+    @session_start();
 ?>

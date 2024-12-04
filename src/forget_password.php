@@ -15,7 +15,7 @@ include '../service/redirect.php';
 ?>
 
 <?php
-$username_ = $_POST['username'];
+@$username_ = $_POST['username'];
 
 if (isset($username_)) {
     echo '<script>alert("Tính năng đang được triển khai!")</script>';
