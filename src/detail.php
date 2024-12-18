@@ -26,7 +26,7 @@
         $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
         // Truy vấn để lấy thumbnail và tất cả ảnh chi tiết của sản phẩm
-        $stmt = $conn->prepare("SELECT p.title, p.id, p.material, p.brand, p.manufacture, p.price, p.description, t.path_image AS thumbnail_path, i.path_image AS image_path
+        $stmt = $conn->prepare("SELECT p.title, p.id, p.material, p.brand, p.manufacture, p.price, p.quantity, p.description, t.path_image AS thumbnail_path, i.path_image AS image_path
                                 FROM products p
                                 LEFT JOIN thumbnails t ON p.id = t.product_id
                                 LEFT JOIN images i ON p.id = i.product_id
@@ -175,7 +175,7 @@
                                 <span class="price-real"><?php echo number_format($product['price'], 0, ",", ".") . " VNĐ" ?></span>
                             </span>
                             <span class="notify">
-                                MIỄN PHÍ VẬN CHUYỂN TOÀN QUỐC KHI ĐẶT HÀNG ONLINE
+                                MIỄN PHÍ VẬN CHUYỂN TOÀN QUỐC KHI ĐẶT HÀNG
                             </span>
                         </div>
                     </div>
@@ -212,7 +212,17 @@
                         </div>
                     </div>
                     <div class="box-option">
-                        <button class="button-cart" <?php echo 'onclick=add_shop_cart(' . ($username_local !== null ? ('true,"' . $username_local . '","' . $product["id"] . '"') : 'false') . ')' ?>>ĐẶT HÀNG</button>
+                        <?php
+                            if ($product['quantity'] <= 0) {
+                                ?>
+                                <span class="out-of-stock">HẾT HÀNG</span>
+                                <?php
+                            } else {
+                                ?>
+                                <button class="button-cart" <?php echo 'onclick=add_shop_cart(' . ($username_local !== null ? ('true,"' . $username_local . '","' . $product["id"] . '"') : 'false') . ')' ?>>ĐẶT HÀNG</button>
+                                <?php
+                            }
+                        ?>
                         <?php
                         if ($role === 1) {
                         ?>
@@ -380,11 +390,26 @@
                 fetch('/AVCShop/service/add_shop_cart.php', option)
                     .then(response => response.json()) // Chuyển dữ liệu phản hồi thành JSON
                     .then(data => {
-                        // Xử lý dữ liệu phản hồi từ PHP
-                        alert(data.message); // Hiển thị phản hồi trong alert
-                        window.location.href = '/AVCShop/src/shop_cart.php'
+                        // Kiểm tra trạng thái và xử lý
+                        if (data.status === 0) {
+                            // Lỗi ở phía server
+                            alert('Có lỗi xảy ra');
+                        } else if (data.status === 1) {
+                            // Sản phẩm không tồn tại
+                            alert('Sản phẩm không tồn tại');
+                        } else if (data.status === 2) {
+                            // Số lượng sản phẩm không đủ
+                            alert('Số lượng sản phẩm không đủ trong kho');
+                        } else if (data.status === 3) {
+                            // Thành công
+                            alert('Thêm sản phẩm vào giỏ hàng thành công!');
+                            window.location.href = '/AVCShop/src/shop_cart.php'; // Điều hướng về giỏ hàng
+                        }
                     })
-                    .catch(err => console.error(err))
+                    .catch(err => {
+                        // Xử lý lỗi nếu có vấn đề khi gửi request
+                        console.error('Có lỗi xảy ra trong quá trình gửi yêu cầu:', err);
+                    });
             } else {
                 alert("Xin lỗi, số lượng sản phẩm không hợp lệ!");
             }

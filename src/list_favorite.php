@@ -98,6 +98,13 @@ if ($username_local === null) {
                                         ?>
                                     ">
                                         <img class="image-product" src=<?php echo $product['thumbnail'] ?> alt="<?php echo $product['title'] ?>">
+                                        <?php 
+                                            if ($product['quantity'] <= 0) {
+                                                ?>
+                                                <div class="out-of-stock">Hết hàng</div>
+                                                <?php
+                                            }
+                                        ?>
                                     </a>
                                 </div>
                                 <div class="bottom-block">

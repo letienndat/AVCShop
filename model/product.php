@@ -3,6 +3,7 @@ class Product {
     public $id;
     public $title;
     public $price;
+    public $quantity;
     public $type;
     public $brand;
     public $manufacture;
@@ -17,11 +18,13 @@ class Product {
         $material, 
         $description, 
         $id = null, // Tham số tùy chọn
-        $price = null
+        $price = null,
+        $quantity = null
     ) {
         $this->id = $id;
         $this->title = $title;
         $this->price = $price;
+        $this->quantity = $quantity;
         $this->type = $type;
         $this->brand = $brand;
         $this->manufacture = $manufacture;

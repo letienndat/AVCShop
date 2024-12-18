@@ -12,16 +12,37 @@ try {
     $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
     $date = new DateTime($data['time']);
-    // Chuyển đổi sang định dạng 'Y-m-d H:i:s' mà MySQL chấp nhận
     $formattedDate = $date->format('Y-m-d H:i:s');
 
-    // Kiểm tra xem sản phẩm đã tồn tại trong giỏ hàng của người dùng chưa
-    $stmt = $conn->prepare("SELECT * FROM shop_cart WHERE username = :username AND product_id = :product_id");
+    // Lấy số lượng hiện có của sản phẩm từ bảng products
+    $stmt = $conn->prepare("SELECT quantity FROM products WHERE id = :product_id");
+    $stmt->bindParam(':product_id', $data['product_id']);
+    $stmt->execute();
+    $product = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if (!$product) {
+        echo json_encode(array('status' => 1, 'message' => 'Sản phẩm không tồn tại'));
+        exit;
+    }
+
+    // Kiểm tra số lượng trong kho
+    // Lấy số lượng sản phẩm hiện có trong giỏ hàng của người dùng
+    $stmt = $conn->prepare("SELECT quantity FROM shop_cart WHERE username = :username AND product_id = :product_id");
     $stmt->bindParam(':username', $data['username']);
     $stmt->bindParam(':product_id', $data['product_id']);
     $stmt->execute();
+    $cartProduct = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    if ($stmt->rowCount() > 0) {
+    $currentCartQuantity = $cartProduct ? $cartProduct['quantity'] : 0;
+
+    // Kiểm tra tổng số lượng sản phẩm (số lượng trong giỏ + số lượng yêu cầu) có vượt quá số lượng trong kho không
+    if (($currentCartQuantity + $data['quantity']) > $product['quantity']) {
+        echo json_encode(array('status' => 2, 'message' => 'Số lượng sản phẩm không đủ trong kho'));
+        exit;
+    }
+
+    // Kiểm tra xem sản phẩm đã tồn tại trong giỏ hàng của người dùng chưa
+    if ($cartProduct) {
         // Sản phẩm đã tồn tại trong giỏ hàng, cập nhật số lượng
         $stmt = $conn->prepare("UPDATE shop_cart SET quantity = quantity + :quantity, time = :time WHERE username = :username AND product_id = :product_id");
         $stmt->bindParam(':quantity', $data['quantity']);
@@ -39,7 +60,7 @@ try {
         $stmt->execute();
     }
 
-    echo json_encode(array('message' => 'Thêm sản phẩm vào giỏ hàng thành công'));
+    echo json_encode(array('status' => 3, 'message' => 'Thêm sản phẩm vào giỏ hàng thành công'));
 } catch (PDOException $e) {
-    echo json_encode(array('message' => $e->getMessage()));
+    echo json_encode(array('status' => 0, 'message' => $e->getMessage()));
 }

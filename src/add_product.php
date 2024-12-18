@@ -23,10 +23,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
         // Tạo sản phẩm mới
         $id = strtoupper(uniqid()); // Tạo ID sản phẩm mới
-        $stmt = $conn->prepare("INSERT INTO products (id, title, price, type, brand, manufacture, material, description) VALUES (:id, :title, :price, :type, :brand, :manufacture, :material, :description)");
+        $stmt = $conn->prepare("INSERT INTO products (id, title, price, quantity, type, brand, manufacture, material, description) VALUES (:id, :title, :price, :quantity, :type, :brand, :manufacture, :material, :description)");
         $stmt->bindParam(':id', $id);
         $stmt->bindParam(':title', $_POST['title']);
         $stmt->bindParam(':price', $_POST['price']);
+        $stmt->bindParam(':quantity', $_POST['quantity']);
         $stmt->bindParam(':type', $_POST['type']);
         $stmt->bindParam(':brand', $_POST['brand']);
         $stmt->bindParam(':manufacture', $_POST['manufacture']);
@@ -177,6 +178,12 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                             </div>
                         </div>
                         <div class="form-group">
+                            <label for="quantity" class="form-label col-sm-2">Số lượng<sup>*</sup>:</label>
+                            <div class="col-sm-10">
+                                <input type="text" value="0" id="quantity" class="form-control" name="quantity" placeholder="Số lượng" autocomplete="one-time-code" oninput="input_quantity(event)">
+                            </div>
+                        </div>
+                        <div class="form-group">
                             <label for="type" class="form-label col-sm-2">Thể loại<sup>*</sup>:</label>
                             <div class="col-sm-10">
                                 <select id="type" class="form-control" name="type">
@@ -233,6 +240,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             rules: [
                 isRequired('#title'),
                 isRequired('#price'),
+                isRequired('#quantity'),
                 isRequired('#brand'),
                 isRequired('#manufacture'),
                 isRequired('#material'),
@@ -243,6 +251,16 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         if (!res) {
             event.preventDefault()
         }
+    }
+
+    const input_quantity = (event) => {
+        let inputValue = event.target.value;
+
+        // Loại bỏ tất cả ký tự không phải là số
+        inputValue = inputValue.replace(/[^0-9]/g, '');
+
+        // Cập nhật lại giá trị trong input
+        event.target.value = inputValue;
     }
 
     const input_price = (event) => {

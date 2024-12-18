@@ -89,8 +89,15 @@
                             echo '<span id="total_order" class="text-shopping-cart">0</span>';
                         }
                         ?>
-
                     </div>
+                    <?php
+                    if ($username_local !== null) {
+                        echo "
+                        <a class='a-order' href='/AVCShop/src/list_order.php'>";
+                            echo $role === 1 ? 'Quản lý đơn mua' : 'Đơn mua';
+                        echo "</a>";
+                    }
+                    ?>
                 </div>
             </div>
         </div>

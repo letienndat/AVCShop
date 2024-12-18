@@ -32,6 +32,7 @@ try {
         id VARCHAR(20) PRIMARY KEY,
         title VARCHAR(255) NOT NULL,
         price INT(11) NOT NULL,
+        quantity INT(11) NOT NULL CHECK (quantity >= 0),
         type VARCHAR(255) NOT NULL,
         brand VARCHAR(255) NOT NULL,
         manufacture VARCHAR(255) NOT NULL,
@@ -125,6 +126,35 @@ try {
         echo "Tạo bảng Shop_Cart thành công!" . "<br>";
     } else {
         echo '<span style="color: red">Tạo bảng Shop_Cart không thành công!' . '</span><br>';
+    }
+
+    // Tạo bảng User_Order
+    // Status: 0: chờ xác nhận, 1: đã xác nhận, 2: đang giao, 3: đã nhận, 4: đã huỷ
+    $createTableQuery = "CREATE TABLE IF NOT EXISTS user_order (
+        id VARCHAR(20) PRIMARY KEY,
+        username VARCHAR(255) CHARACTER SET utf8 COLLATE utf8_bin,
+        product_id VARCHAR(255),
+        name_contact VARCHAR(255) NOT NULL,
+        phone_number VARCHAR(255) NOT NULL,
+        location VARCHAR(255) NOT NULL,
+        price INT(11) NOT NULL,
+        quantity INT(11) NOT NULL,
+        total_price INT(11) NOT NULL,
+        status INT(11) NOT NULL CHECK (status IN (0, 1, 2, 3, 4)),
+        time_create DATETIME NOT NULL,
+        time_confirm DATETIME,
+        time_shipping DATETIME,
+        time_done DATETIME,
+        time_cancel DATETIME,
+        confirm_by VARCHAR(255),
+        cancel_by VARCHAR(255),
+        FOREIGN KEY (username) REFERENCES user(username) ON DELETE CASCADE ON UPDATE CASCADE,
+        FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE ON UPDATE CASCADE
+    )";
+    if ($conn->query($createTableQuery) === TRUE) {
+        echo "Tạo bảng User_Order thành công!" . "<br>";
+    } else {
+        echo '<span style="color: red">Tạo bảng User_Order không thành công!' . '</span><br>';
     }
 
     // Chuẩn bị truy vấn INSERT

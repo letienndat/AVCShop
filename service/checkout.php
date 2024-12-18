@@ -1,10 +1,13 @@
 <?php
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    $selectedProductIDs = isset($_POST['option']) ? $_POST['option'] : array();
+    $selectedProductIDs = json_decode($_POST['selectedProductIDs'], true);
 
-    if (sizeof($selectedProductIDs) > 0) {
+    if (!empty($selectedProductIDs)) {
         $username_ = isset($_POST['username']) ? $_POST['username'] : "";
+        $nameContact = isset($_POST['name_contact']) ? $_POST['name_contact'] : "";
+        $phoneNumber = isset($_POST['phone_number']) ? $_POST['phone_number'] : "";
+        $location = isset($_POST['location']) ? $_POST['location'] : "";
 
         $root = $_SERVER['DOCUMENT_ROOT'];
         require_once $root . '/AVCShop/database/info_connect_db.php';
@@ -13,37 +16,90 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             $conn = new PDO("mysql:host=$servername;dbname=$dbname", $username, $password);
             $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-            // Xây dựng câu truy vấn SQL sử dụng Prepared Statement
-            $query = "SELECT SUM(price * quantity) AS total_price FROM shop_cart 
-                  INNER JOIN products ON shop_cart.product_id = products.id 
-                  WHERE shop_cart.product_id IN (" . str_repeat("?,", count($selectedProductIDs) - 1) . "?) 
-                  AND shop_cart.username = ?";
+            $successfulOrders = [];
+            $failedOrders = [];
+            $totalPrice = 0;
 
-            $stmt = $conn->prepare($query);
+            foreach ($selectedProductIDs as $productId) {
+                // Kiểm tra số lượng trong kho và trong giỏ hàng
+                $stmt = $conn->prepare("
+                    SELECT 
+                        products.quantity AS stock_quantity, 
+                        shop_cart.quantity AS cart_quantity, 
+                        products.price AS product_price 
+                    FROM products 
+                    INNER JOIN shop_cart ON products.id = shop_cart.product_id 
+                    WHERE shop_cart.product_id = ? 
+                    AND shop_cart.username = ?
+                ");
+                $stmt->execute([$productId, $username_]);
+                $result = $stmt->fetch(PDO::FETCH_ASSOC);
 
-            $stmt->execute(array_merge($selectedProductIDs, array($username_)));
+                if ($result) {
+                    $stockQuantity = $result['stock_quantity'];
+                    $cartQuantity = $result['cart_quantity'];
+                    $productPrice = $result['product_price'];
 
-            // Lấy tổng giá tiền
-            $result = $stmt->fetch(PDO::FETCH_ASSOC);
-            $totalPrice = $result['total_price'];
+                    if ($cartQuantity <= $stockQuantity) {
+                        // Đơn hàng thành công
+                        $successfulOrders[] = $productId;
+                        $totalPrice += $cartQuantity * $productPrice;
 
-            $placeholders = implode(',', array_fill(0, count($selectedProductIDs), '?'));
+                        // Trừ số lượng sản phẩm trong kho
+                        $updateStockStmt = $conn->prepare("UPDATE products SET quantity = quantity - ? WHERE id = ?");
+                        $updateStockStmt->execute([$cartQuantity, $productId]);
 
-            $stmt = $conn->prepare("DELETE FROM shop_cart WHERE product_id IN ($placeholders) AND username = ?");
-            $selectedProductIDs[] = $username_;
-            $stmt->execute($selectedProductIDs);
+                        // Xoá sản phẩm khỏi giỏ hàng
+                        $deleteCartStmt = $conn->prepare("DELETE FROM shop_cart WHERE product_id = ? AND username = ?");
+                        $deleteCartStmt->execute([$productId, $username_]);
 
-            $response = array("message" => "Cám ơn bạn đã thanh toán " . number_format($totalPrice, 0, ",", ".") . " đ", "status" => 2);
-            header('Content-Type: application/json');
-            echo json_encode($response);
+                        // Tạo đơn hàng mới trong bảng user_order
+                        $orderId = strtoupper(uniqid());
+                        $timeCreate = date("Y-m-d H:i:s");
+                        $insertOrderStmt = $conn->prepare("
+                            INSERT INTO user_order (
+                                id, username, product_id, name_contact, phone_number, location, 
+                                price, quantity, total_price, status, time_create
+                            ) VALUES (
+                                ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?
+                            )
+                        ");
+                        $insertOrderStmt->execute([
+                            $orderId, $username_, $productId, $nameContact, $phoneNumber, $location,
+                            $productPrice, $cartQuantity, $cartQuantity * $productPrice, $timeCreate
+                        ]);
+                    } else {
+                        // Đơn hàng thất bại do không đủ số lượng
+                        $failedOrders[] = $productId;
+                    }
+                }
+            }
+
+            // Xây dựng thông báo kết quả
+            $successCount = count($successfulOrders);
+            $failCount = count($failedOrders);
+            $message = "$successCount đơn hàng đã đặt thành công.";
+            if ($failCount > 0) {
+                $message .= " $failCount đơn hàng không thành công do không đủ số lượng trong kho.";
+            }
+
+            $response = [
+                "message" => $message,
+                "status" => ($failCount === 0) ? 2 : 1,
+                "successfulOrders" => $successfulOrders,
+                "failedOrders" => $failedOrders,
+                "totalPrice" => $totalPrice,
+            ];
         } catch (PDOException $e) {
-            $response = array("message" => "Error! " . $e->getMessage(), "status" => 0);
-            header('Content-Type: application/json');
-            echo json_encode($response);
+            $response = ["message" => "Error! " . $e->getMessage(), "status" => 0];
         }
     } else {
-        $response = array("message" => "Vui lòng chọn sản phẩm trước khi thực hiện thanh toán!", "status" => 1);
-        header('Content-Type: application/json');
-        echo json_encode($response);
+        $response = ["message" => "Vui lòng chọn sản phẩm trước khi thực hiện thanh toán!", "status" => 1];
     }
+
+    // Trả về phản hồi dạng JSON
+    header('Content-Type: application/json');
+    echo json_encode($response);
+    exit();
 }
+?>

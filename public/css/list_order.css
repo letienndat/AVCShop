@@ -1,0 +1,211 @@
+.tabbar {
+    display: flex;
+    justify-content: space-around;
+    border-bottom: 2px solid #ccc;
+    margin-bottom: 20px;
+}
+
+.tab-button {
+    padding: 10px 20px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    color: #333;
+}
+
+.tab-button.active {
+    border-bottom: 2px solid #007bff;
+    font-weight: bold;
+    color: #007bff;
+}
+
+.tab-content {
+    padding: 10px;
+}
+
+.tab-panel {
+    display: none;
+}
+
+.tab-panel.active {
+    display: block;
+}
+
+.order-item {
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+}
+
+.order-item .item-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+}
+
+.order-item img {
+    max-width: 100px;
+    height: auto;
+    object-fit: cover;
+    border-radius: 4px;
+}
+
+.order-item .details {
+    flex: 1;
+    margin-left: 20px;
+}
+
+.order-item .details h3 {
+    margin: 0;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 18px;
+    line-height: 1.4;
+    font-weight: 500;
+    color: #333;
+}
+
+.order-item .details p {
+    margin: 5px 0;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 14px;
+    line-height: 1.4;
+    font-weight:400;
+    color: #555;
+}
+
+.order-item .actions {
+    text-align: right;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.order-item .actions button {
+    padding: 5px 10px;
+    color: white;
+    background-color: #007bff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.order-item .actions .btn-detail {
+    background-color: #007bff;
+}
+
+.order-item .actions .btn-detail:hover {
+    background-color: #0056b3;
+}
+
+.order-item .actions .btn-confirm {
+    background-color: #4CAF50;
+}
+
+.order-item .actions .btn-confirm:hover {
+    background-color: #45a049;
+}
+
+.order-item .actions .btn-shipping {
+    background-color: #1E90FF;
+}
+
+.order-item .actions .btn-shipping:hover {
+    background-color: #4682B4;
+}
+
+.order-item .actions .btn-received {
+    background-color: #32CD32;
+}
+
+.order-item .actions .btn-received:hover {
+    background-color: #228B22;
+}
+
+.order-item .actions .btn-cancel {
+    background-color: #f44336;
+}
+
+.order-item .actions .btn-cancel:hover {
+    background-color: #e53935;
+}
+
+.search-container {
+    display: flex;
+    justify-content: space-between;
+    margin: 15px 0;
+    gap: 10px;
+}
+
+.search-container input {
+    flex: 1;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.search-container button {
+    padding: 8px 12px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.search-container button:hover {
+    background-color: #0056b3;
+}
+
+.order-list {
+    margin-top: 20px;
+}
+
+.notify-empty-list-order {
+    margin: 0;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 16px;
+    line-height: 1.4;
+    font-weight: 400;
+    color: #333;
+}
+
+/* Màu sắc cho trạng thái */
+.order-detail .status-0 {
+    color: #ff9800; /* Chờ xác nhận */
+}
+
+.order-detail .status-1 {
+    color: #4caf50; /* Đã xác nhận */
+}
+
+.order-detail .status-2 {
+    color: #2196f3; /* Đang giao */
+}
+
+.order-detail .status-3 {
+    color: #8bc34a; /* Đã nhận */
+}
+
+.order-detail .status-4 {
+    color: #f44336; /* Đã huỷ */
+}
+
+.order-detail {
+    display: flex;
+    flex-direction: column;
+    padding-left: 10px;
+}
+
+.order-detail p {
+    padding: 3px 0;
+    margin: 0;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 14px;
+    line-height: 1.4;
+    font-weight:400;
+    color: #555;
+}

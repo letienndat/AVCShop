@@ -43,11 +43,12 @@ try {
             $data["material"],
             $data["description"],
             strtoupper(uniqid()),
-            random_int(90, 1000) * 1000
+            random_int(90, 1000) * 1000,
+            random_int(10, 100)
         );
 
-        $stmtProduct = $conn->prepare("INSERT INTO products (id, title, price, type, brand, manufacture, material, description) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
-        $stmtProduct->bind_param('ssssssss', $product->id, $product->title, $product->price, $product->type, $product->brand, $product->manufacture, $product->material, $product->description);
+        $stmtProduct = $conn->prepare("INSERT INTO products (id, title, price, quantity, type, brand, manufacture, material, description) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+        $stmtProduct->bind_param('ssiisssss', $product->id, $product->title, $product->price, $product->quantity, $product->type, $product->brand, $product->manufacture, $product->material, $product->description);
         $stmtProduct->execute();
 
         if ($stmtProduct->affected_rows > 0) {

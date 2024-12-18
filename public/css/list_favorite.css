@@ -148,9 +148,30 @@ body {
   transform: translateY(-5px); /* Dịch phần tử lên 5px khi hover */
 }
 
+.product .top-block a {
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+
 .product .image-product {
   max-width: 100%;
   height: auto;
+  margin-bottom: 5px;
+}
+
+.out-of-stock {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: rgba(0, 0, 0, 0.6); /* Màu nền mờ */
+  color: white; /* Màu chữ */
+  font-size: 24px;
+  font-weight: bold;
+  padding: 10px 20px;
+  text-transform: uppercase;
+  opacity: 0.8;
 }
 
 .bottom-block > h4 {

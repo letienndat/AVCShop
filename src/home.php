@@ -118,7 +118,7 @@ function getTitlePage($type, $search)
                     $perPage = 30;  // Số sản phẩm mỗi trang
                     $offset = ($page - 1) * $perPage;
 
-                    // Truy vấn lấy danh sách giày từ bảng "products" và kết hợp với bảng "thumbnails"
+                    // Truy vấn lấy danh sách sản phẩm từ bảng "products" và kết hợp với bảng "thumbnails"
                     if (!isset($search)) {
                         if (isset($sort)) {
                             $stmt = $conn->query("SELECT p.*, t.path_image AS thumbnail_path FROM products p
@@ -187,6 +187,13 @@ function getTitlePage($type, $search)
                                     }
                                     ?>">
                                     <img class="image-product" src=<?php echo $product['thumbnail_path'] ?> alt="<?php echo $product['title'] ?>">
+                                    <?php 
+                                        if ($product['quantity'] <= 0) {
+                                            ?>
+                                            <div class="out-of-stock">Hết hàng</div>
+                                            <?php
+                                        }
+                                    ?>
                                 </a>
                             </div>
                             <div class="bottom-block">

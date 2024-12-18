@@ -199,6 +199,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     $title = $_POST['title'];
     $price = $_POST['price'];
+    $quantity = $_POST['quantity'];
     $type = $_POST['type'];
     $brand = $_POST['brand'];
     $manufacture = $_POST['manufacture'];
@@ -211,9 +212,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
         // Tiến hành cập nhật thông tin sản phẩm vào CSDL
-        $stmt = $conn->prepare("UPDATE products SET title = :title, price = :price, type = :type, brand = :brand, manufacture = :manufacture, material = :material, description = :description WHERE id = :id");
+        $stmt = $conn->prepare("UPDATE products SET title = :title, price = :price, quantity = :quantity, type = :type, brand = :brand, manufacture = :manufacture, material = :material, description = :description WHERE id = :id");
         $stmt->bindParam(':title', $title);
         $stmt->bindParam(':price', $price);
+        $stmt->bindParam(':quantity', $quantity);
         $stmt->bindParam(':type', $type);
         $stmt->bindParam(':brand', $brand);
         $stmt->bindParam(':manufacture', $manufacture);
@@ -265,6 +267,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             $path_image = $result['thumbnail_path']; // Ảnh thumbnail
             $title = $result['title'];
             $price = $result['price'];
+            $quantity = $result['quantity'];
             $type = $result['type'];
             $brand = $result['brand'];
             $manufacture = $result['manufacture'];
@@ -361,6 +364,12 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                             </div>
                         </div>
                         <div class="form-group">
+                            <label for="quantity" class="form-label col-sm-2">Số lượng<sup>*</sup>:</label>
+                            <div class="col-sm-10">
+                                <input type="text" id="quantity" class="form-control" value="<?php echo $quantity ?>" name="quantity" placeholder="Số lượng" autocomplete="one-time-code" oninput="input_quantity(event)">
+                            </div>
+                        </div>
+                        <div class="form-group">
                             <label for="type" class="form-label col-sm-2">Thể loại<sup>*</sup>:</label>
                             <div class="col-sm-10">
                                 <select id="type" class="form-control" name="type">
@@ -417,6 +426,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             rules: [
                 isRequired('#title'),
                 isRequired('#price'),
+                isRequired('#quantity'),
                 isRequired('#brand'),
                 isRequired('#manufacture'),
                 isRequired('#material'),
@@ -427,6 +437,16 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         if (!res) {
             event.preventDefault()
         }
+    }
+
+    const input_quantity = (event) => {
+        let inputValue = event.target.value;
+
+        // Loại bỏ tất cả ký tự không phải là số
+        inputValue = inputValue.replace(/[^0-9]/g, '');
+
+        // Cập nhật lại giá trị trong input
+        event.target.value = inputValue;
     }
 
     const input_price = (event) => {

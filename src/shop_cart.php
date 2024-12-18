@@ -56,12 +56,12 @@ if ($username_local === null) {
             <?php
             if (sizeof($result) <= 0) {
                 echo '<div class="no-products">
-                    <span class="notify-products">Không tồn tại đơn hàng nào</span>
+                    <span class="notify-products">Không tồn tại sản phẩm nào trong giỏ</span>
                     </div>';
             } else {
             ?>
                 <?php
-                echo '<form action="" id="form" onsubmit="submit_form(event)" method="POST" data-username="' . $username_local . '">';
+                echo '<form action="/AVCShop/src/payment.php" id="form" method="POST">';
                 ?>
                 <div class="col-sm-12">
                     <div class="table">
@@ -141,9 +141,6 @@ if ($username_local === null) {
                         </div>
                     </div>
                     <div class="buttons">
-                        <div class="pull-left">
-                            <a href="/AVCShop/src/home.php" class="btn">Tiếp tục mua hàng</a>
-                        </div>
                         <div class="pull-right">
                             <?php echo '<button type="submit" class="btn">Thanh toán</button>' ?>
                         </div>
@@ -219,7 +216,14 @@ if ($username_local === null) {
                             sum_all += price
                         }
                     }
-                } else {
+                } else if (data.status == 2) {
+                    alert(data.message)
+                    if (operator === '-') {
+                        ++input_quantity.value
+                    } else if (operator === '+') {
+                        --input_quantity.value
+                    }
+                } else if (data.status == 0) {
                     if (document.querySelectorAll('.row-number').length === 1) {
                         window.location.href = '/AVCShop/src/shop_cart.php'
                     } else {
@@ -237,26 +241,6 @@ if ($username_local === null) {
                 document.querySelector('#price-second').textContent = numberFormat(sum_all) + ' đ'
             })
     }
-
-    const submit_form = (event) => {
-        event.preventDefault();
-
-        const formData = new FormData(event.target);
-        formData.append('username', event.target.dataset.username)
-
-        fetch("/AVCShop/service/checkout.php", {
-                method: "POST",
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                alert(data.message)
-                if (data.status === 2) {
-                    window.location.href = '/AVCShop/src/shop_cart.php'
-                }
-            })
-            .catch(error => console.error(error));
-    };
 
     function numberFormat(number, decimals = 0, decimalSeparator = ",", thousandSeparator = ".") {
         let numString = number.toFixed(decimals).toString();

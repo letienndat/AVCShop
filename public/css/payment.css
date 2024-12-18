@@ -1,0 +1,13 @@
+.payment-method {
+    width: 100%;
+    padding-top: 30px;
+}
+
+.payment-method > .item-method {
+    padding: 0 15px;
+}
+
+.payment-method > .item-method > label {
+    font-family: "Roboto", sans-serif;
+    font-size: 15px;
+}

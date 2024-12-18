@@ -211,6 +211,19 @@ header {
   line-height: 21px;
 }
 
+.a-order {
+  padding: 0 0 0 20px;
+  font-family: "Roboto", sans-serif;
+  font-style: bold;
+  color: #000;
+  font-size: 14px;
+}
+
+.a-order:hover {
+  color: red;
+  text-decoration: underline;
+}
+
 .notify-top {
   height: 40px;
   display: flex;
